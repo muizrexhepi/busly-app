@@ -1,10 +1,12 @@
 import { Text, View, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import { SecondaryButton } from "./secondary-button";
-import { AntDesign } from "@expo/vector-icons";
-import { useCallback } from "react";
-import { format } from "date-fns";
+import { AntDesign, MaterialIcons } from "@expo/vector-icons";
+import { useCallback, useRef } from "react";
 import useSearchStore from "@/store";
+import DateSelector from "./date-select-block";
+import PassengerSelect from "./modals/passengers-select";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 export const SearchSection = () => {
   const {
@@ -29,6 +31,7 @@ export const SearchSection = () => {
     },
     [setTripType, setReturnDate]
   );
+  const passengerSelectModalRef = useRef<BottomSheetModal>(null);
 
   const handleSearch = useCallback(() => {
     const searchParams = new URLSearchParams({
@@ -69,14 +72,9 @@ export const SearchSection = () => {
   const passengerDescription = formatPassengers();
 
   return (
-    <View className="rounded-3xl border-secondary/70 border p-4 flex flex-col gap-3 w-full bg-white">
+    <View className="rounded-3xl border-neutral-700/10 border px-4 py-6 flex flex-col gap-3 w-full bg-white">
       <View className="flex-row gap-4 pb-2">
-        <TouchableOpacity
-          onPress={() => handleTripTypeChange("one-way")}
-          className={`px-3 py-1 rounded-full ${
-            tripType === "one-way" ? "bg-secondary/30" : ""
-          }`}
-        >
+        <TouchableOpacity onPress={() => handleTripTypeChange("one-way")}>
           <Text
             className={`${
               tripType === "one-way"
@@ -87,12 +85,7 @@ export const SearchSection = () => {
             One-way
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => handleTripTypeChange("round-trip")}
-          className={`px-3 py-1 rounded-full ${
-            tripType === "round-trip" ? "bg-secondary/30" : ""
-          }`}
-        >
+        <TouchableOpacity onPress={() => handleTripTypeChange("round-trip")}>
           <Text
             className={`${
               tripType === "round-trip"
@@ -112,11 +105,11 @@ export const SearchSection = () => {
         >
           <View className="flex-row items-center gap-3 flex-1">
             <View className="w-8 h-8 rounded-full bg-gray-50 items-center justify-center">
-              <AntDesign name="pushpin" size={18} color="#666" />
+              <MaterialIcons name="place" size={18} color="#666" />
             </View>
             <View>
               <Text className="text-gray-500 text-sm">From</Text>
-              <Text className="text-black font-medium">
+              <Text className="text-black font-medium capitalize">
                 {fromCity || "Select departure"}
               </Text>
             </View>
@@ -129,64 +122,25 @@ export const SearchSection = () => {
         >
           <View className="flex-row items-center gap-3 flex-1">
             <View className="w-8 h-8 rounded-full bg-gray-50 items-center justify-center">
-              <AntDesign name="pushpin" size={18} color="#666" />
+              <MaterialIcons name="place" size={18} color="#666" />
             </View>
             <View>
               <Text className="text-gray-500 text-sm">To</Text>
-              <Text className="text-black font-medium">
+              <Text className="text-black font-medium capitalize">
                 {toCity || "Select destination"}
               </Text>
             </View>
           </View>
         </SecondaryButton>
+        <DateSelector
+          departureDate={departureDate}
+          returnDate={returnDate}
+          tripType={tripType}
+          parseDate={parseDate}
+          setTripType={setTripType}
+        />
 
-        <SecondaryButton
-          className="flex-row items-center h-16"
-          onPress={() => router.push("/(modal)/date-select")}
-        >
-          <View className="flex-row items-center gap-3 flex-1">
-            <View className="w-8 h-8 rounded-full bg-gray-50 items-center justify-center">
-              <AntDesign name="calendar" size={18} color="#666" />
-            </View>
-            <View>
-              <Text className="text-gray-500 text-sm">Date</Text>
-              <Text className="text-black font-medium">
-                {departureDate
-                  ? format(parseDate(departureDate), "EEE, MMM d")
-                  : "Select date"}
-              </Text>
-            </View>
-            {tripType === "round-trip" && (
-              <TouchableOpacity
-                className="ml-auto"
-                onPress={() => router.push("/(modal)/return-date-select")}
-              >
-                <Text className="text-primary">
-                  {returnDate
-                    ? format(new Date(returnDate), "EEE, MMM d")
-                    : "Add return"}
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        </SecondaryButton>
-
-        <SecondaryButton
-          className="flex-row items-center h-16"
-          onPress={() => router.push("/(modal)/passengers-select")}
-        >
-          <View className="flex-row items-center gap-3 flex-1">
-            <View className="w-8 h-8 rounded-full bg-gray-50 items-center justify-center">
-              <AntDesign name="user" size={18} color="gray" />
-            </View>
-            <View>
-              <Text className="text-gray-500 text-sm">Passengers</Text>
-              <Text className="text-black font-medium">
-                {passengerDescription || "Select passengers"}
-              </Text>
-            </View>
-          </View>
-        </SecondaryButton>
+        <PassengerSelect passengerDescription={passengerDescription} />
       </View>
 
       <SecondaryButton

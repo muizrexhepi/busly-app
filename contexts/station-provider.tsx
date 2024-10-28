@@ -35,6 +35,7 @@ export const StationsProvider = ({
     const fetchStations = async () => {
       try {
         const data = await getStations();
+        console.log({ data });
         setStations(data);
       } catch (err) {
         setError(

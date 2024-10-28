@@ -9,6 +9,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { StationsProvider } from "@/contexts/station-provider";
 import useSearchStore from "@/store";
 import { format } from "date-fns";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -40,119 +41,86 @@ export default function RootLayout() {
 
   return (
     <StationsProvider>
-      <StatusBar barStyle="dark-content" backgroundColor="#fffffe" />
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="search/search-results"
-          options={{
-            headerTitle: () => (
-              <View style={{ alignItems: "center" }}>
-                <Text style={{ color: "white", fontWeight: "bold" }}>
-                  {`${capitalize(fromCity)} to ${capitalize(toCity)}`}
-                </Text>
-                <Text style={{ color: "white" }}>
-                  {formatDepartureDate(departureDate)}
-                </Text>
-              </View>
-            ),
-            headerStyle: {
-              backgroundColor: "#080e2c",
-            },
-            headerTintColor: "white",
-            headerShadowVisible: false,
-            headerLeft: () => (
-              <TouchableOpacity onPress={() => navigation.goBack()}>
-                <AntDesign name="left" size={24} color={"white"} />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-        <Stack.Screen name="+not-found" />
-        <Stack.Screen
-          name="(modal)/from-select"
-          options={{
-            title: "Select From",
-            headerStyle: {
-              backgroundColor: "#080e2c",
-            },
-            headerTintColor: "white",
-            headerShadowVisible: false,
-            headerLeft: () => (
-              <TouchableOpacity onPress={() => navigation.goBack()}>
-                <AntDesign name="left" size={24} color={"white"} />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-        <Stack.Screen
-          name="(modal)/to-select"
-          options={{
-            title: "Select To",
-            headerStyle: {
-              backgroundColor: "#080e2c",
-            },
-            headerTintColor: "white",
-            headerShadowVisible: false,
-            headerLeft: () => (
-              <TouchableOpacity onPress={() => navigation.goBack()}>
-                <AntDesign name="left" size={24} color={"white"} />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-        <Stack.Screen
-          name="(modal)/date-select"
-          options={{
-            presentation: "modal",
-            title: "Select Date",
-            headerStyle: {
-              backgroundColor: "#080e2c",
-            },
-            headerTintColor: "white",
-            headerShadowVisible: false,
-            headerLeft: () => (
-              <TouchableOpacity onPress={() => navigation.goBack()}>
-                <AntDesign name="left" size={24} color={"white"} />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-        <Stack.Screen
-          name="(modal)/return-date-select"
-          options={{
-            presentation: "modal",
-            title: "Select Return Date",
-            headerStyle: {
-              backgroundColor: "#080e2c",
-            },
-            headerTintColor: "white",
-            headerShadowVisible: false,
-            headerLeft: () => (
-              <TouchableOpacity onPress={() => navigation.goBack()}>
-                <AntDesign name="left" size={24} color={"white"} />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-        <Stack.Screen
-          name="(modal)/passengers-select"
-          options={{
-            presentation: "modal",
-            title: "Select Passengers",
-            headerStyle: {
-              backgroundColor: "#080e2c",
-            },
-            headerTintColor: "white",
-            headerShadowVisible: false,
-            headerLeft: () => (
-              <TouchableOpacity onPress={() => navigation.goBack()}>
-                <AntDesign name="left" size={24} color={"white"} />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-      </Stack>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar barStyle="dark-content" backgroundColor="#fffffe" />
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="search/search-results"
+            options={{
+              headerTitle: () => (
+                <View style={{ alignItems: "center" }}>
+                  <Text style={{ color: "white", fontWeight: "bold" }}>
+                    {`${capitalize(fromCity)} to ${capitalize(toCity)}`}
+                  </Text>
+                  <Text style={{ color: "#bbbbbb" }}>
+                    {formatDepartureDate(departureDate)}
+                  </Text>
+                </View>
+              ),
+              headerStyle: {
+                backgroundColor: "#080e2c",
+              },
+              headerTintColor: "white",
+              headerShadowVisible: false,
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <AntDesign name="left" size={24} color={"white"} />
+                </TouchableOpacity>
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="checkout/checkout"
+            options={{
+              title: "Checkout",
+              headerStyle: {
+                backgroundColor: "#080e2c",
+              },
+              headerTintColor: "white",
+              headerShadowVisible: false,
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <AntDesign name="left" size={24} color={"white"} />
+                </TouchableOpacity>
+              ),
+            }}
+          />
+          <Stack.Screen name="+not-found" />
+          <Stack.Screen
+            name="(modal)/from-select"
+            options={{
+              title: "Select From",
+              headerStyle: {
+                backgroundColor: "#080e2c",
+              },
+              headerTintColor: "white",
+              headerShadowVisible: false,
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <AntDesign name="left" size={24} color={"white"} />
+                </TouchableOpacity>
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="(modal)/to-select"
+            options={{
+              title: "Select To",
+              headerStyle: {
+                backgroundColor: "#080e2c",
+              },
+              headerTintColor: "white",
+              headerShadowVisible: false,
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <AntDesign name="left" size={24} color={"white"} />
+                </TouchableOpacity>
+              ),
+            }}
+          />
+        </Stack>
+      </GestureHandlerRootView>
     </StationsProvider>
   );
 }

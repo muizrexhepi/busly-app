@@ -50,7 +50,7 @@ const TicketBlock: React.FC<TicketBlockProps> = ({ ticket, isReturn }) => {
   const durationFormatted = `${duration.hours()}h ${duration.minutes()}m`;
 
   return (
-    <View className="m-4 p-4 bg-white border border-emerald-300 rounded-xl">
+    <View className="mb-4 p-4 bg-white border border-primary/10 rounded-xl">
       <View className="flex flex-row justify-between items-center mb-4">
         <View className="flex flex-row items-center">
           <Text className="text-emerald-500 font-bold text-lg mr-2">
