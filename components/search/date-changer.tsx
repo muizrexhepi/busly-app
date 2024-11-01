@@ -114,12 +114,9 @@ export function DateChanger() {
           isLoading ? (
             <View
               key={date.toISOString()}
-              className="flex-1 h-20 bg-gray-200 rounded-xl mx-1"
+              className="flex-1 h-9 flex-grow bg-gray-100 rounded-full flex justify-center items-center mx-1"
             >
-              <View className="flex flex-col justify-center items-center h-full space-y-2">
-                <View className="h-4 w-12 bg-gray-300 rounded" />
-                <View className="h-4 w-16 bg-gray-300 rounded" />
-              </View>
+              <View className="h-3.5 w-20 bg-gray-300 rounded" />
             </View>
           ) : (
             <DateButton

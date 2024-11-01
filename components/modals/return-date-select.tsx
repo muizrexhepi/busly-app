@@ -90,7 +90,7 @@ const ReturnDateSelect: React.FC<DateSelectProps> = ({ parseDate }) => {
             initialDate={
               selectedReturnDate
                 ? format(selectedReturnDate, "yyyy-MM-dd")
-                : undefined
+                : minReturnDate
             }
             markedDates={
               selectedReturnDate

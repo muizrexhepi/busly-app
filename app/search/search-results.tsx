@@ -89,13 +89,13 @@ const SearchResults = () => {
     </TouchableOpacity>
   );
 
-  if (isLoading) {
-    return (
-      <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <View className="flex-1 justify-center items-center">
+  //       <ActivityIndicator size="large" color="#0000ff" />
+  //     </View>
+  //   );
+  // }
 
   const handlePresentModalPress = () => {
     bottomSheetModalRef.current?.present();
@@ -105,7 +105,11 @@ const SearchResults = () => {
     <View className="flex-1 bg-secondary/5">
       <StatusBar barStyle="light-content" />
       <DateChanger />
-      {noData ? (
+      {isLoading ? (
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      ) : noData ? (
         <NoTicketsAvailable />
       ) : (
         <FlatList

@@ -1,204 +1,247 @@
-// // PassengerInfo.tsx
+import React, { useEffect } from "react";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import PhoneInput from "react-native-phone-number-input";
+import { X } from "lucide-react-native";
+import useSearchStore, { PassengerData, useCheckoutStore } from "@/store";
 
-// import React, { useEffect } from "react";
-// import { View, Text, TextInput, ScrollView } from "react-native";
-// import PhoneInput from "react-native-phone-input";
-// import { PassengerData, useCheckoutStore } from "@/store"; // Adjust the import based on your store structure
+interface InputFieldProps {
+  label: string;
+  placeholder: string;
+  value: string;
+  onChangeText: (text: string) => void;
+  keyboardType?:
+    | "default"
+    | "email-address"
+    | "phone-pad"
+    | "numeric"
+    | "number-pad"
+    | "decimal-pad";
+  secureTextEntry?: boolean;
+}
 
-// interface InputFieldProps {
-//   label: string;
-//   placeholder: string;
-//   value: string;
-//   onChange: (value: string) => void;
-//   required: boolean;
-// }
+const InputField: React.FC<InputFieldProps> = ({
+  label,
+  placeholder,
+  value,
+  onChangeText,
+  keyboardType = "default",
+  secureTextEntry = false,
+}) => (
+  <View className="space-y-1 mb-2">
+    <Text className="font-normal text-base text-black/70">{label}</Text>
+    <TextInput
+      placeholder={placeholder}
+      value={value}
+      onChangeText={onChangeText}
+      keyboardType={keyboardType}
+      secureTextEntry={secureTextEntry}
+      className="font-normal rounded-lg border-gray-300 border px-4 h-16 bg-white placeholder:text-gray-600"
+    />
+  </View>
+);
 
-// const InputField: React.FC<InputFieldProps> = ({
-//   label,
-//   placeholder,
-//   value,
-//   onChange,
-//   required,
-// }) => (
-//   <View className="mb-2">
-//     <Text className="font-normal text-sm text-black">{label}</Text>
-//     <TextInput
-//       className="border border-gray-400 p-2 bg-white rounded-lg"
-//       placeholder={placeholder}
-//       value={value}
-//       onChangeText={onChange}
-//     />
-//   </View>
-// );
+const PassengerInfo: React.FC = () => {
+  const { passengers, setPassengers } = useCheckoutStore();
 
-// const PassengerInfo: React.FC = () => {
-//   const { passengers, setPassengers } = useCheckoutStore((state) => ({
-//     passengers: state.passengers,
-//     setPassengers: state.setPassengers,
-//   }));
+  const { passengers: passengersAmount, setPassengers: setPassengersAmount } =
+    useSearchStore();
 
-//   // Example values for adults and children; adjust as necessary
-//   const adults = 1;
-//   const children = 0;
+  const { adults, children } = {
+    adults: passengersAmount.adults || 1,
+    children: passengersAmount.children || 0,
+  };
 
-//   useEffect(() => {
-//     if (passengers.length === adults + children) {
-//       return;
-//     }
+  useEffect(() => {
+    if (passengers.length === adults + children) {
+      return;
+    }
 
-//     const initialPassengers: PassengerData[] = [
-//       ...Array(adults).fill({
-//         full_name: "",
-//         email: "",
-//         phone: "",
-//         birthdate: "",
-//         age: 33,
-//         price: 0,
-//       }),
-//       ...Array(children).fill({
-//         full_name: "",
-//         email: "",
-//         phone: "",
-//         birthdate: "",
-//         age: 0,
-//         price: 0,
-//       }),
-//     ];
+    const initialPassengers: PassengerData[] = [
+      ...Array(adults).fill({
+        full_name: "",
+        email: "",
+        phone: "",
+        birthdate: "",
+        age: 33,
+        price: 0,
+      }),
+      ...Array(children).fill({
+        full_name: "",
+        email: "",
+        phone: "",
+        birthdate: "",
+        age: 0,
+        price: 0,
+      }),
+    ];
 
-//     setPassengers(initialPassengers);
-//   }, [adults, children, setPassengers]);
+    setPassengers(initialPassengers);
+  }, [adults, children, setPassengers]);
 
-//   const updatePassenger = (
-//     index: number,
-//     field: keyof PassengerData,
-//     value: string
-//   ) => {
-//     const updatedPassengers = [...passengers];
-//     updatedPassengers[index] = { ...updatedPassengers[index], [field]: value };
+  const updatePassenger = (
+    index: number,
+    field: keyof PassengerData,
+    value: string
+  ) => {
+    const updatedPassengers = [...passengers];
+    updatedPassengers[index] = {
+      ...updatedPassengers[index],
+      [field]: value,
+    };
 
-//     // Age calculation for birthdate field
-//     if (field === "birthdate") {
-//       const birthDate = new Date(value);
-//       const today = new Date();
-//       let age = today.getFullYear() - birthDate.getFullYear();
-//       const monthDiff = today.getMonth() - birthDate.getMonth();
-//       if (
-//         monthDiff < 0 ||
-//         (monthDiff === 0 && today.getDate() < birthDate.getDate())
-//       ) {
-//         age--;
-//       }
-//       updatedPassengers[index].age = age;
-//     }
+    if (field === "birthdate") {
+      const birthDate = new Date(value);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      ) {
+        age--;
+      }
+      updatedPassengers[index].age = age;
+    }
 
-//     setPassengers(updatedPassengers);
-//   };
+    setPassengers(updatedPassengers);
+  };
 
-//   const renderPassengerInputs = (passengerIndex: number, isChild: boolean) => {
-//     const passenger = passengers[passengerIndex];
+  const renderPassengerInputs = (passengerIndex: number, isChild: boolean) => {
+    const passenger = passengers[passengerIndex];
 
-//     return (
-//       <View key={passengerIndex} className="mb-4">
-//         <Text className="font-medium text-black mb-2">
-//           {isChild
-//             ? `Child ${passengerIndex - adults + 1}`
-//             : `Adult ${passengerIndex + 1}`}
-//         </Text>
-//         <View className="flex flex-col gap-2">
-//           <InputField
-//             label="First Name"
-//             placeholder="Enter first name"
-//             value={passenger.full_name.split(" ")[0] || ""}
-//             onChange={(value) => {
-//               const lastName = passenger.full_name
-//                 .split(" ")
-//                 .slice(1)
-//                 .join(" ");
-//               updatePassenger(
-//                 passengerIndex,
-//                 "full_name",
-//                 `${value} ${lastName}`.trim()
-//               );
-//             }}
-//             required={true}
-//           />
-//           <InputField
-//             label="Last Name"
-//             placeholder="Enter last name"
-//             value={passenger.full_name.split(" ").slice(1).join(" ") || ""}
-//             onChange={(value) => {
-//               const firstName = passenger.full_name.split(" ")[0];
-//               updatePassenger(
-//                 passengerIndex,
-//                 "full_name",
-//                 `${firstName} ${value}`.trim()
-//               );
-//             }}
-//             required={true}
-//           />
-//           {passengerIndex === 0 && (
-//             <>
-//               <InputField
-//                 label="Email"
-//                 placeholder="Enter email"
-//                 value={passenger.email}
-//                 onChange={(value) =>
-//                   updatePassenger(passengerIndex, "email", value)
-//                 }
-//                 required={true}
-//               />
-//               <View className="flex flex-col">
-//                 <Text className="font-normal text-sm text-black">
-//                   Phone Number
-//                 </Text>
-//                 <PhoneInput
-//                   //   className="border border-gray-400 p-2 bg-white rounded-lg"
-//                   initialCountry="MK"
-//                   onChangePhoneNumber={(value: any) =>
-//                     updatePassenger(passengerIndex, "phone", value)
-//                   }
-//                   //   value={passenger.phone}
-//                 />
-//               </View>
-//             </>
-//           )}
-//           {isChild && (
-//             <InputField
-//               label="Birthdate"
-//               placeholder="Enter birthdate"
-//               value={passenger.birthdate}
-//               onChange={(value) =>
-//                 updatePassenger(passengerIndex, "birthdate", value)
-//               }
-//               required={true}
-//             />
-//           )}
-//         </View>
-//       </View>
-//     );
-//   };
+    const removePassenger = () => {
+      if (isChild) {
+        setPassengersAmount({ adults, children: children - 1 });
+      } else {
+        setPassengersAmount({ children, adults: adults - 1 });
+      }
+    };
 
-//   return (
-//     <ScrollView className="flex-1 bg-white rounded-lg p-4">
-//       <View className="flex flex-row items-center gap-4">
-//         <Text className="w-8 h-8 bg-green-100 text-green-600 rounded-full text-center leading-8 font-semibold">
-//           1
-//         </Text>
-//         <Text className="text-lg font-medium text-gray-800">
-//           Passenger Information
-//         </Text>
-//       </View>
-//       <Text className="text-sm text-gray-500">
-//         Please fill in the details below.
-//       </Text>
-//       <View className="my-4">
-//         {passengers.map((_, index) =>
-//           renderPassengerInputs(index, index >= adults)
-//         )}
-//       </View>
-//       {/* <PassengerSelector /> */}
-//     </ScrollView>
-//   );
-// };
+    return (
+      <View key={passengerIndex} className="mb-4">
+        <View className="flex-row items-center justify-between mb-2">
+          <Text className="font-medium text-lg text-black">
+            {isChild
+              ? `Child ${passengerIndex - adults + 1}`
+              : `Adult ${passengerIndex + 1}`}
+          </Text>
+          {passengerIndex !== 0 && (
+            <TouchableOpacity
+              onPress={removePassenger}
+              className="bg-gray-100 p-1.5 rounded-full"
+            >
+              <X size={16} color="#525252" />
+            </TouchableOpacity>
+          )}
+        </View>
 
-// export default PassengerInfo;
+        <View className="space-y-2">
+          <InputField
+            label={"First name"}
+            placeholder={"John Doe"}
+            value={passenger.full_name.split(" ")[0] || ""}
+            onChangeText={(value) => {
+              const lastName = passenger.full_name
+                .split(" ")
+                .slice(1)
+                .join(" ");
+              updatePassenger(
+                passengerIndex,
+                "full_name",
+                `${value} ${lastName}`.trim()
+              );
+            }}
+          />
+
+          <InputField
+            label="Last Name"
+            placeholder="Doe"
+            value={passenger.full_name.split(" ").slice(1).join(" ") || ""}
+            onChangeText={(value) => {
+              const firstName = passenger.full_name.split(" ")[0];
+              updatePassenger(
+                passengerIndex,
+                "full_name",
+                `${firstName} ${value}`.trim()
+              );
+            }}
+          />
+
+          {passengerIndex === 0 && (
+            <>
+              <InputField
+                label="Email"
+                placeholder="example@example.com"
+                value={passenger.email}
+                onChangeText={(value) =>
+                  updatePassenger(passengerIndex, "email", value)
+                }
+                keyboardType="email-address"
+              />
+
+              <View>
+                <Text className="font-normal text-sm text-black/70">
+                  Phone Number
+                </Text>
+                <PhoneInput
+                  defaultValue={passenger.phone}
+                  defaultCode="MK"
+                  onChangeFormattedText={(text) =>
+                    updatePassenger(passengerIndex, "phone", text)
+                  }
+                  containerStyle={{
+                    width: "100%",
+                    borderWidth: 1,
+                    borderColor: "#D1D5DB",
+                    borderRadius: 8,
+                  }}
+                  textContainerStyle={{
+                    backgroundColor: "white",
+                    borderRadius: 8,
+                  }}
+                />
+              </View>
+            </>
+          )}
+
+          {isChild && (
+            <InputField
+              label="Birthdate"
+              placeholder="YYYY-MM-DD"
+              value={passenger.birthdate}
+              onChangeText={(value) =>
+                updatePassenger(passengerIndex, "birthdate", value)
+              }
+              keyboardType="numeric"
+            />
+          )}
+        </View>
+      </View>
+    );
+  };
+
+  return (
+    <View className=" bg-white rounded-xl pt-4 px-4 mb-4">
+      <View className="flex-row items-center gap-4 mb-2">
+        <View className="flex items-center justify-center w-10 h-10 bg-emerald-100 border border-emerald-800 rounded-xl">
+          <Text className="text-emerald-800 font-semibold">1</Text>
+        </View>
+        <Text className="text-[#353535] font-medium text-2xl">
+          Passenger Information
+        </Text>
+      </View>
+
+      <Text className="text-base text-gray-600 mb-3">
+        Please fill in the details for each passenger.
+      </Text>
+
+      <View className="space-y-3">
+        {passengers.map((_, index) =>
+          renderPassengerInputs(index, index >= adults)
+        )}
+      </View>
+    </View>
+  );
+};
+
+export default PassengerInfo;

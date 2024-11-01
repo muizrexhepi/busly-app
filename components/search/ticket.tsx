@@ -4,6 +4,7 @@ import moment from "moment-timezone";
 import { Ionicons } from "@expo/vector-icons";
 import useSearchStore, { useCheckoutStore } from "@/store";
 import { Ticket } from "@/models/ticket";
+import { router } from "expo-router";
 
 export interface TicketBlockProps {
   ticket: Ticket;
@@ -27,7 +28,7 @@ const TicketBlock: React.FC<TicketBlockProps> = ({ ticket, isReturn }) => {
         setReturnTicket(ticket);
       }
       // Use Expo Router for navigation here, for example:
-      // router.push("/checkout");
+      router.push("/checkout/checkout");
     } else {
       if (ticket._id !== outboundTicket?._id) {
         setOutboundTicket(ticket);
@@ -37,7 +38,7 @@ const TicketBlock: React.FC<TicketBlockProps> = ({ ticket, isReturn }) => {
         setIsSelectingReturn(true);
       } else {
         // Use Expo Router for navigation here
-        // router.push("/checkout");
+        router.push("/checkout/checkout");
       }
     }
   };
