@@ -1,104 +1,59 @@
+import React from "react";
 import { View, Text } from "react-native";
-import moment from "moment";
-import { Calendar, Timer as TimerIcon, Bus } from "lucide-react-native";
+import { MapPin } from "lucide-react-native";
+import { format } from "date-fns";
 import { Ticket } from "@/models/ticket";
-import InfoBlock from "@/components/info-block";
 
-const TicketSummary = ({
-  ticket,
-  isReturn,
-}: {
+type TicketSummaryProps = {
   ticket: Ticket;
   isReturn: boolean;
-}) => {
-  return (
-    <View className="bg-white rounded-xl mb-4">
-      <View className="flex-row items-center gap-4 mb-4">
-        <View className="flex items-center justify-center w-10 h-10 bg-primary/10 border border-primary rounded-xl">
-          <Bus size={20} color="#080e2c" />
-        </View>
-        <View>
-          <Text className="text-[#353535] font-medium text-2xl">
-            {isReturn ? "Return Trip" : "Outbound Trip"}
-          </Text>
-          {/* <Text className="text-base text-gray-600">
-            Trip details and timing information
-          </Text> */}
-        </View>
-      </View>
-
-      <View className="bg-gray-50 rounded-xl p-4 mb-4">
-        <View className="flex-row items-center justify-between mb-4">
-          <View className="flex-1">
-            <Text className="text-gray-500 text-sm mb-1">From</Text>
-            <Text className="text-lg font-medium capitalize">
-              {isReturn ? ticket.stops[0].to.city : ticket.stops[0].from.city}
-            </Text>
-          </View>
-          <View className="h-[1px] flex-1 bg-gray-300 mx-4" />
-          <View className="flex-1 items-end">
-            <Text className="text-gray-500 text-sm mb-1">To</Text>
-            <Text className="text-lg font-medium capitalize">
-              {isReturn ? ticket.stops[0].from.city : ticket.stops[0].to.city}
-            </Text>
-          </View>
-        </View>
-
-        <View className="space-y-3">
-          <View className="flex-row items-center">
-            <View className="w-10">
-              <Calendar color="#6b7280" size={20} />
-            </View>
-            <View className="flex-1">
-              <Text className="text-gray-500 text-sm">Departure</Text>
-              <Text className="text-base font-medium">
-                {moment
-                  .utc(ticket.stops[0].departure_date)
-                  .format("dddd, DD-MM-YYYY")}
-              </Text>
-              <Text className="text-base font-medium text-blue-600">
-                {moment.utc(ticket.stops[0].departure_date).format("HH:mm")}
-              </Text>
-            </View>
-          </View>
-
-          <View className="flex-row items-center">
-            <View className="w-10">
-              <TimerIcon color="#6b7280" size={20} />
-            </View>
-            <View className="flex-1">
-              <Text className="text-gray-500 text-sm">Duration</Text>
-              <Text className="text-base font-medium">
-                {moment
-                  .duration(
-                    moment(ticket.stops[0].arrival_time).diff(
-                      moment(ticket.stops[0].departure_date)
-                    )
-                  )
-                  .asHours()
-                  .toFixed(1)}{" "}
-                hours
-              </Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      <View className="border-t border-gray-200 pt-4">
-        <View className="flex-row items-center">
-          <View className="w-10">
-            <Bus size={20} color="#6b7280" />
-          </View>
-          <View className="flex-1">
-            <Text className="text-gray-500 text-sm">Operated by</Text>
-            <Text className="text-base font-medium">
-              {ticket.metadata.operator_company_name}
-            </Text>
-          </View>
-        </View>
-      </View>
-    </View>
-  );
 };
 
-export default TicketSummary;
+export default function TicketSummary({
+  ticket,
+  isReturn,
+}: TicketSummaryProps) {
+  const departure = new Date(ticket.stops[0].departure_date);
+  const arrival = new Date(ticket.stops[0].arrival_time);
+
+  const from = isReturn ? ticket.stops[0].to.city : ticket.stops[0].from.city;
+  const to = isReturn ? ticket.stops[0].from.city : ticket.stops[0].to.city;
+
+  return (
+    <View className="bg-white rounded-xl py-4 ">
+      <Text className="text-base mb-2">
+        {format(departure, "EEE, d MMM")} → {format(arrival, "EEE, d MMM")}
+      </Text>
+
+      <View className="mb-4">
+        <View className="bg-gray-200 self-start rounded-full px-3 py-1">
+          <Text className="text-sm">
+            {ticket.metadata.operator_company_name}
+          </Text>
+        </View>
+      </View>
+
+      <View className="relative">
+        <View className="absolute left-[3] top-4 bottom-4 w-[1] bg-gray-300" />
+
+        <View className="flex-row items-center mb-6">
+          <View className="w-2 h-2 rounded-full bg-gray-400 mr-4" />
+          <Text className="flex-1 text-base capitalize font-medium">
+            {from}
+          </Text>
+          <MapPin size={16} color="#6B7280" />
+          <Text className="text-base ml-2">{format(departure, "HH:mm")}</Text>
+        </View>
+
+        <View className="flex-row items-center">
+          <View className="w-2 h-2 rounded-full bg-gray-400 mr-4" />
+          <Text className="flex-1 text-base capitalize font-medium">{to}</Text>
+          <MapPin size={16} color="#6B7280" />
+          <Text className="text-base ml-2">{format(arrival, "HH:mm")}</Text>
+        </View>
+      </View>
+
+      <Text className="text-green-600 font-medium mt-4">DIRECT TRIP</Text>
+    </View>
+  );
+}

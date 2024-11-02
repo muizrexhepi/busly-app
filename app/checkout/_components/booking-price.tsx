@@ -1,36 +1,34 @@
-import { cn } from "@/lib/utils";
-import { View, Text } from "react-native";
-import { useState, useEffect, useMemo } from "react";
-import PriceSummaryItem from "./price-item-summary";
-import useSearchStore, { useDepositStore } from "@/store";
-import { useCheckoutStore } from "@/store";
+import React, { useMemo } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import { PaymentButton } from "./payment-button";
+import useSearchStore, { useCheckoutStore } from "@/store";
 import { Ticket } from "@/models/ticket";
-import { CreditCard, Receipt } from "lucide-react-native";
 
-const CheckoutPrice = ({ className }: { className?: string }) => {
-  const [useBalance, setUseBalance] = useState(false);
-  const [balanceAmount, setBalanceAmount] = useState(0);
-  const [remainingAmount, setRemainingAmount] = useState(0);
+interface PriceSummaryItemProps {
+  label: string;
+  amount: number;
+  quantity?: number;
+  className?: string;
+}
 
-  const { useDeposit, depositAmount } = useDepositStore();
-  const childrenAmount = useSearchStore((state) => state.passengers.children);
+const PriceSummaryItem = ({
+  label,
+  amount,
+  quantity,
+  className = "",
+}: PriceSummaryItemProps) => (
+  <View className={`flex-row justify-between items-center py-1 ${className}`}>
+    <Text className="text-gray-900 text-base">
+      {quantity ? `${label} x ${quantity}` : label}
+    </Text>
+    <Text className="font-medium text-base">€{amount.toFixed(2)}</Text>
+  </View>
+);
+
+export default function CheckoutPrice() {
   const { outboundTicket, returnTicket, selectedFlex, passengers } =
     useCheckoutStore();
-
-  useEffect(() => {
-    const handleUseBalanceChange = (event: any) => {
-      setUseBalance(event.detail.useBalance);
-      setBalanceAmount(event.detail.balanceAmount);
-      setRemainingAmount(event.detail.remainingAmount);
-    };
-
-    // Note: For React Native, you might want to use a different event system
-    // This is just kept for reference
-    return () => {
-      // Cleanup
-    };
-  }, []);
-
+  const childrenAmount = useSearchStore((state) => state.passengers.children);
   const flexPrice = useMemo(() => {
     return selectedFlex === "premium" ? 4 : selectedFlex === "basic" ? 2 : 0;
   }, [selectedFlex]);
@@ -67,125 +65,51 @@ const CheckoutPrice = ({ className }: { className?: string }) => {
     return outboundTotal + returnTotal + flexPrice;
   }, [outboundDetails, returnDetails, flexPrice]);
 
-  const finalPrice = useMemo(() => {
-    if (useBalance) {
-      const appliedBalanceAmount = Math.min(balanceAmount / 100, totalPrice);
-      return Math.max(totalPrice - appliedBalanceAmount, 0);
-    }
-    return totalPrice;
-  }, [useBalance, balanceAmount, totalPrice]);
-
-  useEffect(() => {
-    if (useBalance) {
-      const appliedBalanceAmount = Math.min(balanceAmount / 100, totalPrice);
-      setRemainingAmount(Math.max(totalPrice - appliedBalanceAmount, 0));
-    } else {
-      setRemainingAmount(totalPrice - (depositAmount || 0));
-    }
-  }, [useBalance, balanceAmount, totalPrice, depositAmount]);
-
   return (
-    <View className={cn("bg-white rounded-xl p-4 mt-4", className)}>
-      <View className="flex-row items-center gap-4 mb-4">
-        <View className="flex items-center justify-center w-10 h-10 bg-green-100 border border-green-800 rounded-xl">
-          <Receipt size={20} color="#166534" />
-        </View>
-        <View>
-          <Text className="text-[#353535] font-medium text-2xl">
-            Price Summary
-          </Text>
-          <Text className="text-base text-gray-600">
-            Breakdown of your booking costs
-          </Text>
-        </View>
-      </View>
+    <View className="bg-white pb-8">
+      <Text className="text-xl font-semibold mb-4">Total (incl. VAT)</Text>
 
-      {/* Price Details */}
-      <View className="bg-gray-50 rounded-xl p-4 mb-4">
-        {/* Outbound Trip */}
-        {outboundDetails && (
-          <View className="mb-4">
-            <Text className="font-medium text-gray-800 mb-2">
-              Outbound Trip
-            </Text>
-            <View className="space-y-2">
-              <PriceSummaryItem
-                label="Adults"
-                amount={outboundDetails.adultPrice}
-                quantity={outboundDetails.adultCount}
-              />
-              {childrenAmount > 0 && (
-                <PriceSummaryItem
-                  label="Children"
-                  amount={outboundDetails.childPrice}
-                  quantity={outboundDetails.childCount}
-                />
-              )}
-            </View>
-          </View>
-        )}
-
-        {/* Return Trip */}
-        {returnDetails && (
-          <View className="mb-4">
-            <Text className="font-medium text-gray-800 mb-2">Return Trip</Text>
-            <View className="space-y-2">
-              <PriceSummaryItem
-                label="Adults"
-                amount={returnDetails.adultPrice}
-                quantity={returnDetails.adultCount}
-              />
-              <PriceSummaryItem
-                label="Children"
-                amount={returnDetails.childPrice}
-                quantity={returnDetails.childCount}
-              />
-            </View>
-          </View>
-        )}
-
-        {/* Flex Options */}
+      <View className="space-y-2">
+        <PriceSummaryItem
+          label={"Adults"}
+          amount={outboundDetails?.adultPrice!}
+          quantity={outboundDetails?.adultCount}
+        />
+        <PriceSummaryItem
+          label={"Children"}
+          className={`${childrenAmount < 1 && "hidden"}`}
+          amount={outboundDetails?.childPrice!}
+          quantity={outboundDetails?.childCount}
+        />
         {selectedFlex && selectedFlex !== "no_flex" && (
-          <View className="mb-4 pt-4 border-t border-gray-200">
-            <PriceSummaryItem
-              label={selectedFlex === "premium" ? "Premium Flex" : "Basic Flex"}
-              amount={flexPrice || 0}
-              className="text-blue-600"
-            />
-          </View>
+          <PriceSummaryItem
+            label={selectedFlex === "premium" ? "Premium Flex" : "Basic Flex"}
+            amount={flexPrice}
+          />
         )}
       </View>
 
-      {/* Total Section */}
-      <View className="border-t border-gray-200 pt-4">
-        {useDeposit && (
-          <>
-            <PriceSummaryItem
-              label="Subtotal"
-              amount={finalPrice}
-              className="font-medium"
-            />
-            <View className="flex-row items-center gap-2 my-2">
-              <CreditCard size={16} color="#059669" />
-              <PriceSummaryItem
-                label="Deposit Applied"
-                amount={-depositAmount || 0}
-                className="text-emerald-600 flex-1"
-              />
-            </View>
-          </>
-        )}
+      <View className="mt-4 pt-4 border-t border-gray-200">
+        <PriceSummaryItem
+          label="Total"
+          amount={totalPrice + 0.99}
+          className="text-lg font-semibold"
+        />
+      </View>
 
-        <View className="mt-2 pt-2 border-t border-gray-200">
-          <PriceSummaryItem
-            label="Total Amount"
-            amount={remainingAmount}
-            className="font-bold text-lg"
-          />
-        </View>
+      <PaymentButton loading={false} totalPrice={totalPrice} />
+
+      <View className="mt-6 space-y-2">
+        <Text className="text-sm text-gray-600">
+          Contract partner for transportation services:
+        </Text>
+        <Text className="text-sm text-gray-900">
+          FUDEKS d.o.o. (Skopje - Belgrade AS)
+        </Text>
+        <TouchableOpacity>
+          <Text className="text-sm text-blue-600">Privacy Policy</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
-};
-
-export default CheckoutPrice;
+}

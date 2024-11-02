@@ -27,8 +27,7 @@ const TicketBlock: React.FC<TicketBlockProps> = ({ ticket, isReturn }) => {
       if (ticket._id !== returnTicket?._id) {
         setReturnTicket(ticket);
       }
-      // Use Expo Router for navigation here, for example:
-      router.push("/checkout/checkout");
+      router.push("/checkout");
     } else {
       if (ticket._id !== outboundTicket?._id) {
         setOutboundTicket(ticket);
@@ -37,8 +36,7 @@ const TicketBlock: React.FC<TicketBlockProps> = ({ ticket, isReturn }) => {
       if (tripType === "round-trip") {
         setIsSelectingReturn(true);
       } else {
-        // Use Expo Router for navigation here
-        router.push("/checkout/checkout");
+        router.push("/checkout");
       }
     }
   };

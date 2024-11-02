@@ -5,15 +5,20 @@ import { BookingDetails } from "./_components/booking-details";
 import CheckoutPrice from "./_components/booking-price";
 import Extras from "./_components/extras-info";
 import PaymentMethod from "./_components/payment-method";
+import { StripeProvider } from "@stripe/stripe-react-native";
 
 const Checkout = () => {
   return (
     <ScrollView className="h-full bg-gray-100">
-      <PassengerInfo />
-      <Extras />
-      <PaymentMethod />
-      <BookingDetails />
-      <CheckoutPrice />
+      <StripeProvider
+        merchantIdentifier="merchant.identifier"
+        publishableKey="pk_test_51K1DdaDAZApOs2EVXCiMmQnlAa9TIqCpnuhrDrpiKqdTGuGlNvbbyYnaEPgl2m0Qg2WfBC6r6j2wfP2jLdDwPdnm00D2bcqz6v"
+      >
+        <PassengerInfo />
+        <Extras />
+        <PaymentMethod />
+        <BookingDetails />
+      </StripeProvider>
     </ScrollView>
   );
 };

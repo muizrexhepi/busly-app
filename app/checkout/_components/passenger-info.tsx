@@ -198,6 +198,7 @@ const PassengerInfo: React.FC = () => {
                   textContainerStyle={{
                     backgroundColor: "white",
                     borderRadius: 8,
+                    paddingLeft: 0,
                   }}
                 />
               </View>

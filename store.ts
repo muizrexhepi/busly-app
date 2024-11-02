@@ -3,6 +3,7 @@ import { Ticket } from './models/ticket';
 import { addDays, format } from 'date-fns';
 import { createJSONStorage, persist, PersistOptions } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CardFieldInput } from '@stripe/stripe-react-native';
 
 // Passenger Data interface
 export interface PassengerData {
@@ -33,22 +34,24 @@ export const usePaymentSuccessStore = create<PaymentSuccessStore>((set) => ({
 
 // Checkout state interface
 interface CheckoutState {
-    selectedTicket: Ticket | null;
-    outboundTicket: Ticket | null;
-    returnTicket: Ticket | null;
+    selectedTicket: any;
+    outboundTicket: any;
+    returnTicket: any;
     isSelectingReturn: boolean;
-    passengers: PassengerData[];
-    selectedFlex: string | null;
+    passengers: any[];
+    selectedFlex: any;
     flexPrice: number;
     totalCost: number;
+    cardDetails: CardFieldInput.Details | null;
 
-    setSelectedTicket: (ticket: Ticket | null) => void;
-    setOutboundTicket: (ticket: Ticket | null) => void;
-    setReturnTicket: (ticket: Ticket | null) => void;
+    setSelectedTicket: (ticket: any) => void;
+    setOutboundTicket: (ticket: any) => void;
+    setReturnTicket: (ticket: any) => void;
     setIsSelectingReturn: (isSelecting: boolean) => void;
-    setPassengers: (passengers: PassengerData[]) => void;
-    setSelectedFlex: (flex: string | null) => void;
+    setPassengers: (passengers: any[]) => void;
+    setSelectedFlex: (flex: any) => void;
     setFlexPrice: (price: number) => void;
+    setCardDetails: (details: CardFieldInput.Details | null) => void;
     calculateTotalCost: () => void;
     resetCheckout: () => void;
 }
@@ -64,6 +67,7 @@ export const useCheckoutStore = create<CheckoutState>()(
             selectedFlex: null,
             flexPrice: 0,
             totalCost: 0,
+            cardDetails: null,
 
             setSelectedTicket: (ticket) => set({ selectedTicket: ticket }),
             setOutboundTicket: (ticket) => set({ outboundTicket: ticket }),
@@ -72,10 +76,13 @@ export const useCheckoutStore = create<CheckoutState>()(
             setPassengers: (passengers) => set({ passengers }),
             setSelectedFlex: (flex) => set({ selectedFlex: flex }),
             setFlexPrice: (price) => set({ flexPrice: price }),
+            setCardDetails: (details) => set({ cardDetails: details }),
+
             calculateTotalCost: () => {
                 const { passengers, flexPrice } = get();
                 set({ totalCost: passengers.length * flexPrice });
             },
+
             resetCheckout: () => set({
                 selectedTicket: null,
                 outboundTicket: null,
@@ -85,6 +92,7 @@ export const useCheckoutStore = create<CheckoutState>()(
                 selectedFlex: null,
                 flexPrice: 0,
                 totalCost: 0,
+                cardDetails: null,
             }),
         }),
         {

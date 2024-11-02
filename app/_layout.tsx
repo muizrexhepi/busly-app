@@ -71,7 +71,7 @@ export default function RootLayout() {
             }}
           />
           <Stack.Screen
-            name="checkout/checkout"
+            name="checkout/index"
             options={{
               title: "Checkout",
               headerStyle: {
@@ -85,6 +85,21 @@ export default function RootLayout() {
                 </TouchableOpacity>
               ),
             }}
+          />
+          <Stack.Screen
+            name="checkout/success/index"
+            options={({ navigation }) => ({
+              headerShown: false,
+              gestureEnabled: false, // This disables the swipe-back gesture
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <AntDesign name="left" size={24} color="white" />
+                </TouchableOpacity>
+              ),
+              headerStyle: {
+                backgroundColor: "transparent",
+              },
+            })}
           />
           <Stack.Screen name="+not-found" />
           <Stack.Screen
