@@ -51,7 +51,7 @@ const TravelFlex = () => {
           className={cn(
             "rounded-xl border p-4",
             selectedFlex === flex.value
-              ? "border-emerald-700 bg-emerald-50"
+              ? "border-primary bg-primary/10"
               : "border-gray-300"
           )}
           onPress={() => handleFlexSelection(flex)}
@@ -64,7 +64,7 @@ const TravelFlex = () => {
             <Text className="font-semibold text-lg text-black">
               {flex.name}
             </Text>
-            <Text className="font-semibold text-lg text-emerald-700">
+            <Text className="font-semibold text-lg text-primary">
               {flex.price > 0 ? `+ ${flex.price}€` : "Free"}
             </Text>
           </View>
@@ -75,8 +75,8 @@ const TravelFlex = () => {
                   key={index}
                   className="flex flex-row items-center gap-2 mb-1"
                 >
-                  <Check size={16} color="#047857" />
-                  <Text className="text-base text-gray-600">{feature}</Text>
+                  <Check size={16} color="#000" />
+                  <Text className="text-base text-primary">{feature}</Text>
                 </View>
               ))}
             </View>
@@ -90,10 +90,10 @@ const TravelFlex = () => {
 const Extras = () => {
   return (
     <View className="flex flex-col rounded-xl bg-white p-4 gap-4">
-      <View className="flex flex-row items-center gap-4">
-        <View className="flex items-center justify-center w-10 h-10 bg-emerald-100 border border-emerald-800 rounded-xl">
-          <Text className="text-emerald-800 font-semibold">2</Text>
-        </View>
+      <View className="flex-row items-center gap-4">
+        {/* <View className="flex items-center justify-center w-10 h-10 bg-primary/10 border border-primary rounded-xl">
+          <Text className="text-primary font-semibold">2</Text>
+        </View> */}
         <Text className="text-[#353535] font-medium text-2xl">Add Extras</Text>
       </View>
       <Text className="text-base text-gray-600">

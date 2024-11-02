@@ -5,6 +5,7 @@ import PriceSummaryItem from "./price-item-summary";
 import useSearchStore, { useDepositStore } from "@/store";
 import { useCheckoutStore } from "@/store";
 import { Ticket } from "@/models/ticket";
+import { CreditCard, Receipt } from "lucide-react-native";
 
 const CheckoutPrice = ({ className }: { className?: string }) => {
   const [useBalance, setUseBalance] = useState(false);
@@ -84,51 +85,79 @@ const CheckoutPrice = ({ className }: { className?: string }) => {
   }, [useBalance, balanceAmount, totalPrice, depositAmount]);
 
   return (
-    <View className={cn("bg-white rounded-xl p-4 space-y-3", className)}>
-      <Text className="font-medium text-lg">Booking Price</Text>
-      <View className="flex flex-col gap-1">
+    <View className={cn("bg-white rounded-xl p-4 mt-4", className)}>
+      <View className="flex-row items-center gap-4 mb-4">
+        <View className="flex items-center justify-center w-10 h-10 bg-green-100 border border-green-800 rounded-xl">
+          <Receipt size={20} color="#166534" />
+        </View>
+        <View>
+          <Text className="text-[#353535] font-medium text-2xl">
+            Price Summary
+          </Text>
+          <Text className="text-base text-gray-600">
+            Breakdown of your booking costs
+          </Text>
+        </View>
+      </View>
+
+      {/* Price Details */}
+      <View className="bg-gray-50 rounded-xl p-4 mb-4">
+        {/* Outbound Trip */}
         {outboundDetails && (
-          <>
-            <Text className="font-medium text-base mt-2">Outbound Trip</Text>
-            <PriceSummaryItem
-              label="Adults"
-              amount={outboundDetails.adultPrice}
-              quantity={outboundDetails.adultCount}
-            />
-            <PriceSummaryItem
-              label="Children"
-              className={`${childrenAmount < 1 && "hidden"}`}
-              amount={outboundDetails.childPrice}
-              quantity={outboundDetails.childCount}
-            />
-          </>
+          <View className="mb-4">
+            <Text className="font-medium text-gray-800 mb-2">
+              Outbound Trip
+            </Text>
+            <View className="space-y-2">
+              <PriceSummaryItem
+                label="Adults"
+                amount={outboundDetails.adultPrice}
+                quantity={outboundDetails.adultCount}
+              />
+              {childrenAmount > 0 && (
+                <PriceSummaryItem
+                  label="Children"
+                  amount={outboundDetails.childPrice}
+                  quantity={outboundDetails.childCount}
+                />
+              )}
+            </View>
+          </View>
         )}
 
+        {/* Return Trip */}
         {returnDetails && (
-          <>
-            <Text className="font-medium text-base mt-2">Return Trip</Text>
-            <PriceSummaryItem
-              label="Adults"
-              amount={returnDetails.adultPrice}
-              quantity={returnDetails.adultCount}
-            />
-            <PriceSummaryItem
-              label="Children"
-              amount={returnDetails.childPrice}
-              quantity={returnDetails.childCount}
-            />
-          </>
+          <View className="mb-4">
+            <Text className="font-medium text-gray-800 mb-2">Return Trip</Text>
+            <View className="space-y-2">
+              <PriceSummaryItem
+                label="Adults"
+                amount={returnDetails.adultPrice}
+                quantity={returnDetails.adultCount}
+              />
+              <PriceSummaryItem
+                label="Children"
+                amount={returnDetails.childPrice}
+                quantity={returnDetails.childCount}
+              />
+            </View>
+          </View>
         )}
 
+        {/* Flex Options */}
         {selectedFlex && selectedFlex !== "no_flex" && (
-          <PriceSummaryItem
-            label={selectedFlex === "premium" ? "Premium Flex" : "Basic Flex"}
-            amount={flexPrice}
-          />
+          <View className="mb-4 pt-4 border-t border-gray-200">
+            <PriceSummaryItem
+              label={selectedFlex === "premium" ? "Premium Flex" : "Basic Flex"}
+              amount={flexPrice || 0}
+              className="text-blue-600"
+            />
+          </View>
         )}
+      </View>
 
-        <View className="w-full h-[1px] bg-neutral-500 my-2" />
-
+      {/* Total Section */}
+      <View className="border-t border-gray-200 pt-4">
         {useDeposit && (
           <>
             <PriceSummaryItem
@@ -136,19 +165,24 @@ const CheckoutPrice = ({ className }: { className?: string }) => {
               amount={finalPrice}
               className="font-medium"
             />
-            <PriceSummaryItem
-              label="Amount Used From Deposit"
-              amount={-depositAmount || 0}
-              className="text-green-600"
-            />
+            <View className="flex-row items-center gap-2 my-2">
+              <CreditCard size={16} color="#059669" />
+              <PriceSummaryItem
+                label="Deposit Applied"
+                amount={-depositAmount || 0}
+                className="text-emerald-600 flex-1"
+              />
+            </View>
           </>
         )}
 
-        <PriceSummaryItem
-          label="Total"
-          amount={remainingAmount}
-          className="font-medium text-lg"
-        />
+        <View className="mt-2 pt-2 border-t border-gray-200">
+          <PriceSummaryItem
+            label="Total Amount"
+            amount={remainingAmount}
+            className="font-bold text-lg"
+          />
+        </View>
       </View>
     </View>
   );

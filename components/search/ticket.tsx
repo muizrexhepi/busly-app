@@ -72,7 +72,7 @@ const TicketBlock: React.FC<TicketBlockProps> = ({ ticket, isReturn }) => {
         <Text className="text-lg font-semibold">
           {departureDate.format("h:mm A")}
         </Text>
-        <View className="flex-1 flex-row items-center">
+        <View className="flex-1 flex-row items-center shrink-0">
           <View className="h-px bg-secondary/80 flex-grow ml-2" />
           <View className="border-secondary/80 border rounded-full px-2 py-1">
             <Text className="text-emerald-800 text-sm">

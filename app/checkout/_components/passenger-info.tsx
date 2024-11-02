@@ -223,9 +223,9 @@ const PassengerInfo: React.FC = () => {
   return (
     <View className=" bg-white rounded-xl pt-4 px-4 mb-4">
       <View className="flex-row items-center gap-4 mb-2">
-        <View className="flex items-center justify-center w-10 h-10 bg-emerald-100 border border-emerald-800 rounded-xl">
-          <Text className="text-emerald-800 font-semibold">1</Text>
-        </View>
+        {/* <View className="flex items-center justify-center w-10 h-10 bg-primary/10 border border-primary rounded-xl">
+          <Text className="text-primary font-semibold">1</Text>
+        </View> */}
         <Text className="text-[#353535] font-medium text-2xl">
           Passenger Information
         </Text>

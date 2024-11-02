@@ -6,21 +6,17 @@ import {
   Text,
   TouchableOpacity,
   StatusBar,
-  Button,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { environment } from "@/environment";
-
 import { Ticket } from "@/models/ticket";
 import NoTicketsAvailable from "@/components/search/no-tickets";
 import TicketBlock from "@/components/search/ticket";
 import DateChanger from "@/components/search/date-changer";
 import { useCheckoutStore, useLoadingStore } from "@/store";
 import {
-  BottomSheetFooter,
   BottomSheetModal,
   BottomSheetModalProvider,
-  BottomSheetScrollView,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import TicketDetails from "@/components/search/ticket-details";
@@ -43,15 +39,23 @@ const SearchResults = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const { isLoading, setIsLoading } = useLoadingStore();
   const [noData, setNoData] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMoreData, setHasMoreData] = useState(true);
 
-  const fetchTickets = async () => {
-    if (!departureStation || !arrivalStation) {
+  const fetchTickets = async (page: number, isLoadingMore = false) => {
+    if (!departureStation || !arrivalStation || !hasMoreData) {
       return;
     }
 
     try {
+      if (!isLoadingMore) {
+        setIsLoading(true);
+      }
+      setIsLoadingMore(isLoadingMore);
+
       const response = await fetch(
-        `${environment.apiurl}/ticket/search?departureStation=${departureStation}&arrivalStation=${arrivalStation}&departureDate=${departureDate}&adults=${adult}&children=${children}&page=1`
+        `${environment.apiurl}/ticket/search?departureStation=${departureStation}&arrivalStation=${arrivalStation}&departureDate=${departureDate}&adults=${adult}&children=${children}&page=${page}`
       );
 
       if (!response.ok) {
@@ -62,25 +66,54 @@ const SearchResults = () => {
       const newTickets = data.data || [];
 
       if (newTickets.length === 0) {
-        setNoData(true);
+        if (page === 1) {
+          setNoData(true);
+        }
+        setHasMoreData(false);
       } else {
         setNoData(false);
-        setTickets(newTickets);
+        if (isLoadingMore) {
+          setTickets((prevTickets) => [...prevTickets, ...newTickets]);
+        } else {
+          setTickets(newTickets);
+        }
       }
     } catch (err) {
-      setNoData(true);
+      if (page === 1) {
+        setNoData(true);
+      }
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
     }
   };
 
   useEffect(() => {
-    fetchTickets();
+    setCurrentPage(1);
+    setHasMoreData(true);
+    fetchTickets(1);
   }, [departureStation, arrivalStation, departureDate, adult, children]);
+
+  const handleLoadMore = () => {
+    if (!isLoadingMore && hasMoreData && !isLoading) {
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      fetchTickets(nextPage, true);
+    }
+  };
+
+  const renderFooter = () => {
+    if (!isLoadingMore) return null;
+    return (
+      <View className="py-4">
+        <ActivityIndicator size="small" color="#0000ff" />
+      </View>
+    );
+  };
 
   const renderTicket = ({ item }: { item: Ticket }) => (
     <TouchableOpacity
-      onPress={(e) => {
+      onPress={() => {
         setSelectedTicket(item);
         handlePresentModalPress();
       }}
@@ -88,14 +121,6 @@ const SearchResults = () => {
       <TicketBlock ticket={item} />
     </TouchableOpacity>
   );
-
-  // if (isLoading) {
-  //   return (
-  //     <View className="flex-1 justify-center items-center">
-  //       <ActivityIndicator size="large" color="#0000ff" />
-  //     </View>
-  //   );
-  // }
 
   const handlePresentModalPress = () => {
     bottomSheetModalRef.current?.present();
@@ -105,7 +130,7 @@ const SearchResults = () => {
     <View className="flex-1 bg-secondary/5">
       <StatusBar barStyle="light-content" />
       <DateChanger />
-      {isLoading ? (
+      {isLoading && !isLoadingMore ? (
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#0000ff" />
         </View>
@@ -118,6 +143,9 @@ const SearchResults = () => {
           keyExtractor={(item) => item._id}
           className="p-4"
           contentContainerStyle={{ paddingBottom: 100 }}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={renderFooter}
         />
       )}
 

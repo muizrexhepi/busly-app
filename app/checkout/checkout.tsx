@@ -8,12 +8,12 @@ import PaymentMethod from "./_components/payment-method";
 
 const Checkout = () => {
   return (
-    <ScrollView className="h-full bg-gray-100 pb-40">
+    <ScrollView className="h-full bg-gray-100">
       <PassengerInfo />
       <Extras />
       <PaymentMethod />
-      <CheckoutPrice />
       <BookingDetails />
+      <CheckoutPrice />
     </ScrollView>
   );
 };

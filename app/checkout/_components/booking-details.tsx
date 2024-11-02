@@ -8,7 +8,7 @@ export function BookingDetails() {
   return (
     <View className="bg-white rounded-xl p-4">
       <View className="flex-row items-center gap-4 mb-2">
-        <Text className="text-[#353535] font-semibold text-xl">
+        <Text className="text-[#353535] font-medium text-2xl">
           Booking Details
         </Text>
       </View>
