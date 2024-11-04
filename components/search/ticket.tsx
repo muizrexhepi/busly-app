@@ -49,16 +49,14 @@ const TicketBlock: React.FC<TicketBlockProps> = ({ ticket, isReturn }) => {
   const durationFormatted = `${duration.hours()}h ${duration.minutes()}m`;
 
   return (
-    <View className="mb-4 p-4 bg-white border border-primary/10 rounded-xl">
+    <View className="mb-4 p-4 bg-white border border-primary/10 rounded-xl h-[180px] shrink-0">
       <View className="flex flex-row justify-between items-center mb-4">
         <View className="flex flex-row items-center">
           <Text className="text-emerald-500 font-bold text-lg mr-2">
-            FLiXBUS
+            {ticket.operatorInfo.name}
           </Text>
-          <View className="bg-emerald-100 px-2 py-1 rounded">
-            <Text className="text-emerald-500 text-xs font-semibold">
-              CHEAPEST
-            </Text>
+          <View className="bg-secondary/30 px-2 py-1 rounded">
+            <Text className="text-primary text-xs font-semibold">CHEAPEST</Text>
           </View>
         </View>
         <Text className="text-xl font-bold">

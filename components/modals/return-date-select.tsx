@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Pressable } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { format, parse, isValid } from "date-fns";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
-import { AntDesign } from "@expo/vector-icons";
 import useSearchStore from "@/store";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 
 interface DateSelectProps {
   parseDate: (date: string) => Date;
@@ -33,8 +33,16 @@ const ReturnDateSelect: React.FC<DateSelectProps> = ({ parseDate }) => {
       setTripType("round-trip");
       bottomSheetModalRef.current?.dismiss();
     } else {
-      console.warn("No valid return date selected.");
+      setReturnDate(null);
+      setTripType("one-way");
+      bottomSheetModalRef.current?.dismiss();
     }
+  };
+
+  const handleRemoveReturnDate = () => {
+    setReturnDate(null);
+    setTripType("one-way");
+    bottomSheetModalRef.current?.dismiss();
   };
 
   const handlePresentModalPress = useCallback(() => {
@@ -47,10 +55,13 @@ const ReturnDateSelect: React.FC<DateSelectProps> = ({ parseDate }) => {
 
   return (
     <>
-      <TouchableOpacity className="flex-1" onPress={handlePresentModalPress}>
+      <Pressable
+        className="flex-1 bg-secondary/10 rounded-lg p-4"
+        onPress={handlePresentModalPress}
+      >
         <View className="flex-row items-center gap-3">
-          <View className="w-8 h-8 rounded-full bg-gray-50 items-center justify-center">
-            <AntDesign name="calendar" size={18} color="#666" />
+          <View className="w-8 h-8 rounded-full items-center justify-center">
+            <Ionicons name="calendar" size={24} color="#666" />
           </View>
           <View className="flex-1">
             <Text className="text-gray-500 text-sm">Return</Text>
@@ -64,25 +75,32 @@ const ReturnDateSelect: React.FC<DateSelectProps> = ({ parseDate }) => {
                 : "Add return"}
             </Text>
           </View>
+          {returnDate && (
+            <TouchableOpacity onPress={handleRemoveReturnDate}>
+              <AntDesign name="close" size={20} color="#666" />
+            </TouchableOpacity>
+          )}
         </View>
-      </TouchableOpacity>
+      </Pressable>
 
       <BottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={["70%"]}
         enablePanDownToClose
         enableDismissOnClose
-        // backdropComponent={({ style }) => (
-        //   <View style={[style, { backgroundColor: "rgba(0, 0, 0, 0.5)" }]} />
-        // )}
       >
         <BottomSheetView className="flex-1 p-4 bg-white">
-          <View className="mb-4">
+          <View className="mb-4 flex-row items-center justify-between">
             <Text className="text-xl font-semibold">Select Return Date</Text>
-            <Text className="text-gray-500 text-sm">
-              Choose your preferred return date for the trip.
-            </Text>
+            {returnDate && (
+              <TouchableOpacity onPress={handleRemoveReturnDate}>
+                <AntDesign name="close" size={20} color="#666" />
+              </TouchableOpacity>
+            )}
           </View>
+          <Text className="text-gray-500 text-sm">
+            Choose your preferred return date for the trip.
+          </Text>
           <Calendar
             onDayPress={(day: any) =>
               setSelectedReturnDate(new Date(day.timestamp))
@@ -97,14 +115,14 @@ const ReturnDateSelect: React.FC<DateSelectProps> = ({ parseDate }) => {
                 ? {
                     [format(selectedReturnDate, "yyyy-MM-dd")]: {
                       selected: true,
-                      selectedColor: "#007AFF",
+                      selectedColor: "#15203e",
                     },
                   }
                 : {}
             }
             minDate={minReturnDate}
             theme={{
-              selectedDayBackgroundColor: "#007AFF",
+              selectedDayBackgroundColor: "#15203e",
               selectedDayTextColor: "#FFFFFF",
               todayTextColor: "#007AFF",
               dayTextColor: "#2d4150",

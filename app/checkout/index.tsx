@@ -2,7 +2,6 @@ import React from "react";
 import PassengerInfo from "./_components/passenger-info";
 import { ScrollView, View } from "react-native";
 import { BookingDetails } from "./_components/booking-details";
-import CheckoutPrice from "./_components/booking-price";
 import Extras from "./_components/extras-info";
 import PaymentMethod from "./_components/payment-method";
 import { StripeProvider } from "@stripe/stripe-react-native";

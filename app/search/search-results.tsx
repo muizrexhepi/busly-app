@@ -7,13 +7,13 @@ import {
   TouchableOpacity,
   StatusBar,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { environment } from "@/environment";
 import { Ticket } from "@/models/ticket";
 import NoTicketsAvailable from "@/components/search/no-tickets";
 import TicketBlock from "@/components/search/ticket";
 import DateChanger from "@/components/search/date-changer";
-import { useCheckoutStore, useLoadingStore } from "@/store";
+import useSearchStore, { useCheckoutStore, useLoadingStore } from "@/store";
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
@@ -24,7 +24,15 @@ import { PrimaryButton } from "@/components/primary-button";
 
 const SearchResults = () => {
   const params = useLocalSearchParams();
-  const { selectedTicket, setSelectedTicket } = useCheckoutStore();
+  const {
+    selectedTicket,
+    setSelectedTicket,
+    setOutboundTicket,
+    setReturnTicket,
+    setIsSelectingReturn,
+    isSelectingReturn,
+  } = useCheckoutStore();
+  const { tripType } = useSearchStore();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const {
@@ -43,6 +51,23 @@ const SearchResults = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMoreData, setHasMoreData] = useState(true);
 
+  const handleTicketSelection = (ticket: Ticket) => {
+    if (isSelectingReturn) {
+      setIsLoading(true);
+      setReturnTicket(ticket);
+      router.push("/checkout");
+    } else {
+      setOutboundTicket(ticket);
+      setIsLoading(true);
+      if (tripType === "round-trip" && returnDate) {
+        setIsLoading(false);
+        setIsSelectingReturn(true);
+      } else {
+        setIsLoading(false);
+        router.push("/checkout");
+      }
+    }
+  };
   const fetchTickets = async (page: number, isLoadingMore = false) => {
     if (!departureStation || !arrivalStation || !hasMoreData) {
       return;
@@ -106,7 +131,7 @@ const SearchResults = () => {
     if (!isLoadingMore) return null;
     return (
       <View className="py-4">
-        <ActivityIndicator size="small" color="#0000ff" />
+        <ActivityIndicator size="small" color="#15203e" />
       </View>
     );
   };
@@ -127,12 +152,12 @@ const SearchResults = () => {
   };
 
   return (
-    <View className="flex-1 bg-secondary/5">
+    <View className="flex-1 bg-secondary/10">
       <StatusBar barStyle="light-content" />
       <DateChanger />
       {isLoading && !isLoadingMore ? (
         <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" color="#15203e" />
         </View>
       ) : noData ? (
         <NoTicketsAvailable />
@@ -142,7 +167,7 @@ const SearchResults = () => {
           renderItem={renderTicket}
           keyExtractor={(item) => item._id}
           className="p-4"
-          contentContainerStyle={{ paddingBottom: 100 }}
+          contentContainerStyle={{ paddingBottom: 50 }}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={renderFooter}
@@ -158,7 +183,10 @@ const SearchResults = () => {
           <BottomSheetView className="flex-1 bg-white p-4">
             {selectedTicket && <TicketDetails />}
             <View className="bg-white absolute bottom-4 w-full left-4">
-              <PrimaryButton className="bg-primary w-full my-4">
+              <PrimaryButton
+                className="bg-primary w-full my-4"
+                onPress={() => handleTicketSelection(selectedTicket!)}
+              >
                 <Text className="text-white text-center font-medium text-lg">
                   Continue
                 </Text>

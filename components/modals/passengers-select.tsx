@@ -1,13 +1,8 @@
 import React, { useCallback, useRef } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
-import useSearchStore from "@/store"; // Adjust the import path as needed
-import {
-  BottomSheetModal,
-  BottomSheetModalProvider,
-  BottomSheetView,
-} from "@gorhom/bottom-sheet";
-import { SecondaryButton } from "../secondary-button";
+import { View, Text, TouchableOpacity, Pressable } from "react-native";
+import { AntDesign, FontAwesome } from "@expo/vector-icons";
+import useSearchStore from "@/store";
+import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 
 type PassengerSelectProps = {
   updateUrl?: boolean;
@@ -30,7 +25,6 @@ const PassengerSelect = ({
     setPassengers(updatedPassengers);
 
     if (updateUrl) {
-      // Add URL updating logic here if needed
     }
   };
 
@@ -68,13 +62,15 @@ const PassengerSelect = ({
 
   return (
     <>
-      <SecondaryButton
-        className="flex-row items-center h-16"
+      <Pressable
+        className="flex-row items-center h-16 bg-secondary/10 rounded-xl px-4"
+        accessibilityRole="button"
+        accessibilityLabel="Select number of passengers"
         onPress={handlePresentModalPress}
       >
         <View className="flex-row items-center gap-3 flex-1">
-          <View className="w-8 h-8 rounded-full bg-gray-50 items-center justify-center">
-            <AntDesign name="user" size={18} color="gray" />
+          <View className="w-8 h-8 rounded-full items-center justify-center">
+            <FontAwesome name="user" size={24} color="gray" />
           </View>
           <View>
             <Text className="text-gray-500 text-sm">Passengers</Text>
@@ -83,7 +79,7 @@ const PassengerSelect = ({
             </Text>
           </View>
         </View>
-      </SecondaryButton>
+      </Pressable>
       <BottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={["50%"]}

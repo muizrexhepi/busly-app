@@ -1,12 +1,11 @@
-import { Text, View, TouchableOpacity } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 import { SecondaryButton } from "./secondary-button";
-import { AntDesign, MaterialIcons } from "@expo/vector-icons";
-import { useCallback, useRef } from "react";
+import { FontAwesome6, MaterialIcons } from "@expo/vector-icons";
+import { useCallback } from "react";
 import useSearchStore from "@/store";
 import DateSelector from "./date-select-block";
 import PassengerSelect from "./modals/passengers-select";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 export const SearchSection = () => {
   const {
@@ -21,17 +20,6 @@ export const SearchSection = () => {
     passengers,
     setReturnDate,
   } = useSearchStore();
-
-  const handleTripTypeChange = useCallback(
-    (type: "one-way" | "round-trip") => {
-      setTripType(type);
-      if (type === "one-way") {
-        setReturnDate(null);
-      }
-    },
-    [setTripType, setReturnDate]
-  );
-  const passengerSelectModalRef = useRef<BottomSheetModal>(null);
 
   const handleSearch = useCallback(() => {
     const searchParams = new URLSearchParams({
@@ -72,41 +60,16 @@ export const SearchSection = () => {
   const passengerDescription = formatPassengers();
 
   return (
-    <View className="rounded-3xl border-neutral-700/10 border px-4 py-6 flex flex-col gap-3 w-full bg-white">
-      <View className="flex-row gap-4 pb-2">
-        <TouchableOpacity onPress={() => handleTripTypeChange("one-way")}>
-          <Text
-            className={`${
-              tripType === "one-way"
-                ? "text-primary font-medium"
-                : "text-gray-500"
-            }`}
-          >
-            One-way
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleTripTypeChange("round-trip")}>
-          <Text
-            className={`${
-              tripType === "round-trip"
-                ? "text-primary font-medium"
-                : "text-gray-500"
-            }`}
-          >
-            Round trip
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      <View className="gap-3">
-        <SecondaryButton
-          className="flex-row items-center h-16"
+    <View className="rounded-2xl border-neutral-700/10 border-t px-4 py-6 flex flex-col gap-3 w-full bg-white">
+      <View className="flex gap-2">
+        <Pressable
+          className="flex-row items-center h-16 bg-secondary/10 rounded-xl px-4"
           onPress={() => router.push("/(modal)/from-select")}
+          accessibilityRole="button"
+          accessibilityLabel="Select departure location"
         >
           <View className="flex-row items-center gap-3 flex-1">
-            <View className="w-8 h-8 rounded-full bg-gray-50 items-center justify-center">
-              <MaterialIcons name="place" size={18} color="#666" />
-            </View>
+            <FontAwesome6 name="location-crosshairs" size={24} color="#666" />
             <View>
               <Text className="text-gray-500 text-sm">From</Text>
               <Text className="text-black font-medium capitalize">
@@ -114,16 +77,16 @@ export const SearchSection = () => {
               </Text>
             </View>
           </View>
-        </SecondaryButton>
+        </Pressable>
 
-        <SecondaryButton
-          className="flex-row items-center h-16"
+        <Pressable
+          className="flex-row items-center h-16 bg-secondary/10 rounded-xl px-4"
           onPress={() => router.push("/(modal)/to-select")}
+          accessibilityRole="button"
+          accessibilityLabel="Select arrival location"
         >
           <View className="flex-row items-center gap-3 flex-1">
-            <View className="w-8 h-8 rounded-full bg-gray-50 items-center justify-center">
-              <MaterialIcons name="place" size={18} color="#666" />
-            </View>
+            <MaterialIcons name="place" size={24} color="#666" />
             <View>
               <Text className="text-gray-500 text-sm">To</Text>
               <Text className="text-black font-medium capitalize">
@@ -131,7 +94,7 @@ export const SearchSection = () => {
               </Text>
             </View>
           </View>
-        </SecondaryButton>
+        </Pressable>
         <DateSelector
           departureDate={departureDate}
           returnDate={returnDate}
@@ -147,7 +110,9 @@ export const SearchSection = () => {
         className="h-16 bg-primary items-center flex flex-row justify-center"
         onPress={handleSearch}
       >
-        <Text className="text-white text-center font-semibold">Search</Text>
+        <Text className="text-white text-center font-semibold text-lg">
+          Search
+        </Text>
       </SecondaryButton>
     </View>
   );

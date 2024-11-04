@@ -59,7 +59,7 @@ export default function RootLayout() {
                 </View>
               ),
               headerStyle: {
-                backgroundColor: "#080e2c",
+                backgroundColor: "#15203e",
               },
               headerTintColor: "white",
               headerShadowVisible: false,
@@ -75,7 +75,7 @@ export default function RootLayout() {
             options={{
               title: "Checkout",
               headerStyle: {
-                backgroundColor: "#080e2c",
+                backgroundColor: "#15203e",
               },
               headerTintColor: "white",
               headerShadowVisible: false,
@@ -107,7 +107,7 @@ export default function RootLayout() {
             options={{
               title: "Select From",
               headerStyle: {
-                backgroundColor: "#080e2c",
+                backgroundColor: "#15203e",
               },
               headerTintColor: "white",
               headerShadowVisible: false,
@@ -123,7 +123,7 @@ export default function RootLayout() {
             options={{
               title: "Select To",
               headerStyle: {
-                backgroundColor: "#080e2c",
+                backgroundColor: "#15203e",
               },
               headerTintColor: "white",
               headerShadowVisible: false,

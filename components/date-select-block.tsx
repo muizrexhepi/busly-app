@@ -18,11 +18,8 @@ const DateSelector: React.FC<DateSelectorProps> = ({
   parseDate,
 }) => {
   return (
-    <View className="flex-row items-center h-16 justify-between border border-primary/10 p-4 rounded-lg">
+    <View className="flex-row items-center h-16 justify-between gap-2 my-1">
       <DateSelect parseDate={parseDate} />
-
-      <View className="h-11 w-[1px] bg-gray-200 mx-4" />
-
       <ReturnDateSelect parseDate={parseDate} />
     </View>
   );

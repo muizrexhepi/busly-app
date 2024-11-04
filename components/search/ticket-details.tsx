@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { View, Text, TouchableOpacity, Linking } from "react-native";
+import { View, Text, Linking } from "react-native";
 import {
   MapPin,
   Calendar,
@@ -10,7 +10,6 @@ import {
   BusFront,
 } from "lucide-react-native";
 import moment from "moment-timezone";
-import { Ticket } from "@/models/ticket";
 import InfoBlock from "../info-block";
 import { useCheckoutStore } from "@/store";
 

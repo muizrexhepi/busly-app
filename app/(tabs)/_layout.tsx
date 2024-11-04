@@ -16,7 +16,7 @@ export default function TabLayout() {
           shadowOffset: { width: 0, height: 5 },
           shadowOpacity: 0.3,
         },
-        tabBarActiveTintColor: "#1B1D27",
+        tabBarActiveTintColor: "#15203e",
         tabBarInactiveTintColor: "#b3b3b3",
       }}
     >

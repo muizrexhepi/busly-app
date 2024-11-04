@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { CheckCircle } from "lucide-react-native";
 import React from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const PaymentSuccessScreen = ({ route, navigation }: any) => {
@@ -16,6 +16,7 @@ const PaymentSuccessScreen = ({ route, navigation }: any) => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
+      <StatusBar barStyle="dark-content" backgroundColor="#fffffe" />
       <View className="items-center justify-center px-4 pt-12 pb-6">
         <View className="bg-green-50 rounded-full p-4 mb-4">
           <CheckCircle size={48} color={"#43eaba"} />
@@ -77,11 +78,8 @@ const PaymentSuccessScreen = ({ route, navigation }: any) => {
           </Text>
         </View>
 
-        <TouchableOpacity
-          className="mt-6 bg-secondary py-4 rounded-lg items-center"
-          onPress={() => router.push("/")}
-        >
-          <Text className="text-white font-semibold text-base">
+        <TouchableOpacity onPress={() => router.push("/")}>
+          <Text className="text-primary text-center my-4 font-semibold text-base">
             Back to Home
           </Text>
         </TouchableOpacity>

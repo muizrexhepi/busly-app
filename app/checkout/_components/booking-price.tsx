@@ -21,7 +21,7 @@ const PriceSummaryItem = ({
     <Text className="text-gray-900 text-base">
       {quantity ? `${label} x ${quantity}` : label}
     </Text>
-    <Text className="font-medium text-base">€{amount.toFixed(2)}</Text>
+    <Text className="font-medium text-base">€{amount?.toFixed(2)}</Text>
   </View>
 );
 

@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  Platform,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useStripe } from "@stripe/stripe-react-native";
 import axios from "axios";
@@ -14,13 +21,19 @@ interface PaymentButtonProps {
   totalPrice: number;
 }
 
-export const PaymentButton = ({ loading, totalPrice }: PaymentButtonProps) => {
+export const PaymentButton = ({
+  loading: externalLoading,
+  totalPrice,
+}: PaymentButtonProps) => {
   const stripe = useStripe();
   const router = useRouter();
+  const [internalLoading, setInternalLoading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const platform = Platform.OS.toLowerCase();
+  const loading = externalLoading || internalLoading || isProcessing;
 
-  const [balance, setBalance] = useState<number>(0);
-  const { useDeposit, setDepositAmount, setUseDeposit, depositAmount } =
-    useDepositStore();
+  const { useDeposit, depositAmount } = useDepositStore();
+
   const {
     passengers,
     outboundTicket,
@@ -39,10 +52,28 @@ export const PaymentButton = ({ loading, totalPrice }: PaymentButtonProps) => {
   }, [selectedFlex]);
 
   const calculateTicketTotal = (ticket: Ticket) => {
-    const adultPrice = ticket.stops[0].other_prices.our_price;
-    const childPrice = ticket.stops[0].other_prices.our_children_price;
+    if (!ticket || !ticket.stops || !ticket.stops[0]) {
+      return 0;
+    }
+
+    const adultPrice = ticket.stops[0].other_prices?.our_price || 0;
+    const childPrice = ticket.stops[0].other_prices?.our_children_price || 0;
     const adultCount = passengers.filter((p) => p.age > 10).length;
     const childCount = passengers.filter((p) => p.age <= 10).length;
+
+    return adultPrice * adultCount + childPrice * childCount;
+  };
+
+  const calculateOperatorTicketTotal = (ticket: Ticket) => {
+    if (!ticket || !ticket.stops || !ticket.stops[0]) {
+      return 0;
+    }
+
+    const adultPrice = ticket.stops[0].price || 0;
+    const childPrice = ticket.stops[0].children_price || 0;
+    const adultCount = passengers.filter((p) => p.age > 10).length;
+    const childCount = passengers.filter((p) => p.age <= 10).length;
+
     return adultPrice * adultCount + childPrice * childCount;
   };
 
@@ -50,105 +81,174 @@ export const PaymentButton = ({ loading, totalPrice }: PaymentButtonProps) => {
     ? calculateTicketTotal(outboundTicket)
     : 0;
   const returnTotal = returnTicket ? calculateTicketTotal(returnTicket) : 0;
+  const operatorOutboundTotal = outboundTicket
+    ? calculateOperatorTicketTotal(outboundTicket)
+    : 0;
+  const operatorReturnTotal = returnTicket
+    ? calculateOperatorTicketTotal(returnTicket)
+    : 0;
+  const operatorTotalPrice = operatorOutboundTotal + operatorReturnTotal;
   const totalPriceWithFlex = outboundTotal + returnTotal + flexPrice;
 
   const finalPrice = useDeposit
     ? Math.max(totalPriceWithFlex - depositAmount, 0)
     : totalPriceWithFlex;
 
-  const handleFullDepositPayment = async () => {
+  const validatePayment = () => {
+    if (!stripe) {
+      return "Payment service is not initialized";
+    }
+    if (!cardDetails?.complete) {
+      return "Please complete the card details";
+    }
+    if (finalPrice <= 0) {
+      return "Invalid payment amount";
+    }
+    return null;
+  };
+
+  const logPaymentAttempt = async (data: any) => {
     try {
+      console.log("[Payment Attempt]", {
+        timestamp: new Date().toISOString(),
+        ...data,
+      });
+      // You could also send this to your analytics service
+    } catch (error) {
+      console.error("Failed to log payment attempt:", error);
+    }
+  };
+
+  const handleFullDepositPayment = async () => {
+    setIsProcessing(true);
+    try {
+      await logPaymentAttempt({
+        type: "full_deposit",
+        amount: totalPrice,
+        depositAmount,
+      });
+
       await createBookings("full_deposit_payment");
       resetCheckout();
       router.push("/checkout/success");
     } catch (error: any) {
       console.error("Full deposit payment error:", error);
       Alert.alert(
-        "Error",
+        "Payment Error",
         error.response?.data?.message ||
-          "An error occurred during full deposit payment."
+          "An error occurred during payment with deposit."
       );
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handlePayment = async () => {
-    if (!stripe || !cardDetails?.complete) {
-      Alert.alert(
-        "Error",
-        "Card details are incomplete or Stripe is not initialized."
-      );
+    const validationError = validatePayment();
+    if (validationError) {
+      Alert.alert("Validation Error", validationError);
       return;
     }
 
+    setIsProcessing(true);
+
     try {
+      console.log("Starting payment process...");
+
+      await logPaymentAttempt({
+        type: "card_payment",
+        amount: finalPrice,
+        depositAmount: useDeposit ? depositAmount : 0,
+      });
+      console.log("Payment attempt logged successfully");
+
+      console.log("Creating payment intent...", {
+        passengers,
+        amount_in_cents: finalPrice * 100,
+        platform: platform,
+      });
+
       const res = await axios.post<{ data: { clientSecret: string } }>(
         `${environment.apiurl}/payment/create-payment-intent`,
-        { passengers, amount_in_cents: finalPrice * 100 }
+        {
+          passengers,
+          amount_in_cents: finalPrice * 100,
+          platform: platform,
+        }
       );
 
-      console.log("Payment Intent Response:", res.data);
       const { clientSecret } = res.data.data;
+      console.log("Payment intent created successfully");
 
+      console.log("Confirming payment...");
       const { error: confirmError, paymentIntent } =
         await stripe.confirmPayment(clientSecret, {
           paymentMethodType: "Card",
         });
 
       if (confirmError) {
-        console.error("Payment confirmation error:", confirmError);
-        Alert.alert(
-          "Payment Error",
-          confirmError.message ||
-            "An error occurred during payment confirmation."
-        );
-      } else if (paymentIntent?.status === "Succeeded") {
-        console.log("Payment successful:", paymentIntent);
+        console.error("Confirm error:", confirmError);
+        throw new Error(confirmError.message || "Payment confirmation failed");
+      }
+
+      console.log("Payment intent status:", paymentIntent?.status);
+
+      if (paymentIntent?.status === "Succeeded") {
+        console.log("Payment succeeded, creating bookings...");
         await createBookings(paymentIntent.id);
+        console.log("Bookings created successfully");
+        resetCheckout();
         router.push("/checkout/success");
       } else {
-        console.warn(
-          "Payment not successful. Payment Intent status:",
-          paymentIntent?.status
-        );
-        Alert.alert(
-          "Payment Status",
-          "Payment was not successful. Please try again."
-        );
+        console.error("Unexpected payment status:", paymentIntent?.status);
+        throw new Error(`Unexpected payment status: ${paymentIntent?.status}`);
       }
-    } catch (err: any) {
-      console.error("Payment process error:", err);
+    } catch (error: any) {
+      console.error("Payment process error details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        fullError: error,
+      });
+
       Alert.alert(
-        "Error",
-        err.response?.data?.message ||
+        "Payment Error",
+        error.response?.data?.message ||
+          error.message ||
           "An error occurred during payment processing."
       );
     } finally {
-      resetCheckout();
+      setIsProcessing(false);
     }
   };
 
   const createBookings = async (paymentIntentId: string) => {
     const bookings = [];
+    setInternalLoading(true);
 
-    if (outboundTicket) {
-      const outboundBooking = await createBooking(
-        outboundTicket,
-        false,
-        paymentIntentId
-      );
-      bookings.push(outboundBooking);
+    try {
+      if (outboundTicket) {
+        const outboundBooking = await createBooking(
+          outboundTicket,
+          false,
+          paymentIntentId
+        );
+        bookings.push(outboundBooking);
+      }
+
+      if (returnTicket) {
+        const returnBooking = await createBooking(
+          returnTicket,
+          true,
+          paymentIntentId
+        );
+        bookings.push(returnBooking);
+      }
+
+      return bookings;
+    } finally {
+      setInternalLoading(false);
     }
-
-    if (returnTicket) {
-      const returnBooking = await createBooking(
-        returnTicket,
-        true,
-        paymentIntentId
-      );
-      bookings.push(returnBooking);
-    }
-
-    return bookings;
   };
 
   const createBooking = async (
@@ -156,8 +256,14 @@ export const PaymentButton = ({ loading, totalPrice }: PaymentButtonProps) => {
     isReturn: boolean,
     paymentIntentId: string
   ) => {
+    if (!ticket.stops?.[0]) {
+      throw new Error("Invalid ticket data");
+    }
+
     const departure_station = ticket.stops[0].from._id;
     const arrival_station = ticket.stops[0].to._id;
+    const departure_station_label = ticket.stops[0].from.name;
+    const arrival_station_label = ticket.stops[0].to.name;
     const passengersWithPrices = calculatePassengerPrices(passengers, ticket);
     const ticketTotal = isReturn ? returnTotal : outboundTotal;
 
@@ -170,49 +276,62 @@ export const PaymentButton = ({ loading, totalPrice }: PaymentButtonProps) => {
           passengers: passengersWithPrices,
           travel_flex: selectedFlex,
           payment_intent_id: paymentIntentId,
-          platform: "mobile",
+          platform: platform,
           flex_price: isReturn ? 0 : flexPrice,
           total_price: ticketTotal + (isReturn ? 0 : flexPrice),
-          operator_price: outboundTotal + returnTotal,
+          operator_price: operatorTotalPrice,
           departure_station,
           arrival_station,
+          departure_station_label,
+          arrival_station_label,
+          is_using_deposited_money: useDeposit,
+          deposit_spent: isReturn ? 0 : depositAmount * 100 || 0,
+          stop: ticket.stops[0],
           is_return: isReturn,
         }
       );
 
-      console.log("Booking created successfully:", response.data);
-      if (typeof global !== "undefined") {
-        const savedBookings =
-          (await AsyncStorage.getItem("noUserBookings")) || "[]";
-        const newBooking = response.data.data;
-        const allBookings = [...JSON.parse(savedBookings), newBooking];
+      try {
+        const savedBookings = await AsyncStorage.getItem("noUserBookings");
+        const parsedBookings = savedBookings ? JSON.parse(savedBookings) : [];
+        parsedBookings.push(response.data.data);
         await AsyncStorage.setItem(
           "noUserBookings",
-          JSON.stringify(allBookings)
+          JSON.stringify(parsedBookings)
         );
+      } catch (storageError) {
+        console.error("Failed to save booking to storage:", storageError);
       }
+
       return response.data.data;
     } catch (error: any) {
       console.error("Error creating booking:", error);
-      Alert.alert(
-        "Booking Error",
-        error.response?.data?.message ||
-          "An error occurred while creating the booking."
+      throw new Error(
+        error.response?.data?.message || "Failed to create booking"
       );
     }
   };
 
   return (
     <TouchableOpacity
-      className="py-2 mt-4 bg-primary flex justify-center items-center h-16 rounded-lg flex-1"
+      className={`py-2 mt-4 ${
+        loading ? "bg-gray-400" : "bg-primary"
+      } flex justify-center items-center h-16 rounded-lg flex-1`}
       disabled={loading}
       onPress={
         totalPrice <= depositAmount ? handleFullDepositPayment : handlePayment
       }
     >
-      <Text className="text-white font-medium text-lg">
-        {loading ? "Processing payment" : "Complete payment"}
-      </Text>
+      {loading ? (
+        <View className="flex-row items-center space-x-2">
+          <ActivityIndicator color="white" />
+          <Text className="text-white font-medium text-lg">Processing</Text>
+        </View>
+      ) : (
+        <Text className="text-white font-medium text-lg">Complete payment</Text>
+      )}
     </TouchableOpacity>
   );
 };
+
+export default PaymentButton;

@@ -174,7 +174,7 @@ const PassengerInfo: React.FC = () => {
                 placeholder="example@example.com"
                 value={passenger.email}
                 onChangeText={(value) =>
-                  updatePassenger(passengerIndex, "email", value)
+                  updatePassenger(passengerIndex, "email", value.toLowerCase())
                 }
                 keyboardType="email-address"
               />

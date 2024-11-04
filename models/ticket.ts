@@ -31,7 +31,10 @@ export interface Ticket {
         },
     },
     metadata: TicketMetadata;
-
+    operatorInfo: {
+        name:string;
+        email:string;
+    };
 }
 
 export interface TicketMetadata {

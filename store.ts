@@ -5,7 +5,6 @@ import { createJSONStorage, persist, PersistOptions } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CardFieldInput } from '@stripe/stripe-react-native';
 
-// Passenger Data interface
 export interface PassengerData {
     full_name: string;
     email: string;
@@ -15,13 +14,11 @@ export interface PassengerData {
     price: number;
 }
 
-// Passengers interface
 export interface Passengers {
     adults: number;
     children: number;
 }
 
-// Payment success store
 interface PaymentSuccessStore {
     isPaymentSuccess: boolean;
     setIsPaymentSuccess: (success: boolean) => void;
@@ -32,11 +29,10 @@ export const usePaymentSuccessStore = create<PaymentSuccessStore>((set) => ({
     setIsPaymentSuccess: (success: boolean) => set({ isPaymentSuccess: success }),
 }));
 
-// Checkout state interface
 interface CheckoutState {
-    selectedTicket: any;
-    outboundTicket: any;
-    returnTicket: any;
+    selectedTicket: Ticket | null;
+    outboundTicket: Ticket | null;
+    returnTicket: Ticket | null;
     isSelectingReturn: boolean;
     passengers: any[];
     selectedFlex: any;
@@ -97,12 +93,11 @@ export const useCheckoutStore = create<CheckoutState>()(
         }),
         {
             name: 'checkout-storage',
-            storage: createJSONStorage(() => AsyncStorage), // Use AsyncStorage for React Native
+            storage: createJSONStorage(() => AsyncStorage), 
         } as PersistOptions<CheckoutState>
     )
 );
 
-// Search state interface
 interface SearchState {
     from: string;
     fromCity: string;
@@ -126,7 +121,6 @@ interface SearchState {
     resetSearch: () => void;
 }
 
-// Initial state for search
 const initialState: Omit<SearchState, 'setFrom' | 'setTo' | 'setFromCity' | 'setToCity' | 'setRoute' | 'setPassengers' | 'setDepartureDate' | 'setReturnDate' | 'setTripType' | 'resetSearch'> = {
     from: '',
     to: '',
@@ -142,7 +136,6 @@ const initialState: Omit<SearchState, 'setFrom' | 'setTo' | 'setFromCity' | 'set
     tripType: 'one-way', 
 };
 
-// Search store
 const useSearchStore = create<SearchState>()(
     persist(
         (set) => ({
@@ -170,24 +163,21 @@ const useSearchStore = create<SearchState>()(
         }),
         {
             name: 'search-store',
-            storage: createJSONStorage(() => AsyncStorage), // Use AsyncStorage for React Native
+            storage: createJSONStorage(() => AsyncStorage), 
         } as PersistOptions<SearchState>
     )
 );
 
-// Loading state interface
 interface ILoading {
     isLoading: boolean;
     setIsLoading: (isLoading: boolean) => void;
 }
 
-// Loading store
 export const useLoadingStore = create<ILoading>((set) => ({
     isLoading: true,
     setIsLoading: (isLoading) => set({ isLoading }),
 }));
 
-// Navbar menu interface
 interface INavbarMenu {
     openLogin: boolean;
     setOpenLogin: (openLogin: boolean) => void;
@@ -199,7 +189,6 @@ interface INavbarMenu {
     setOpenReset: (openReset: boolean) => void;
 }
 
-// Navbar store
 export const useNavbarStore = create<INavbarMenu>((set) => ({
     openLogin: false,
     setOpenLogin: (openLogin) => set({ openLogin }),
@@ -211,7 +200,6 @@ export const useNavbarStore = create<INavbarMenu>((set) => ({
     setOpenReset: (openReset: boolean) => set({ openReset }),
 }));
 
-// Deposit store interface
 interface DepositStore {
     useDeposit: boolean;
     depositAmount: number;
@@ -219,7 +207,6 @@ interface DepositStore {
     setDepositAmount: (depositAmount: number) => void;
 }
 
-// Deposit store
 export const useDepositStore = create<DepositStore>((set) => ({
     useDeposit: false,
     depositAmount: 0,

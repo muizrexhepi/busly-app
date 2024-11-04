@@ -4,14 +4,17 @@ import { CalendarX } from "lucide-react-native";
 
 const NoTicketsAvailable = () => {
   return (
-    <View className="w-11/12 mx-auto my-4 p-6 border border-gray-200 rounded-lg bg-[#f1f5f9] shadow">
-      <View className="flex items-center mb-4">
-        <CalendarX className="w-8 h-8 text-primary" />
-        <Text className="text-xl font-semibold text-gray-700 mt-2">
-          No Tickets Available
-        </Text>
+    <View className="w-full px-4 py-8" accessibilityRole="alert">
+      <View className="flex items-center mb-6">
+        <CalendarX className="w-12 h-12 text-gray-400" />
       </View>
-      <Text className="text-center text-gray-600 mb-3">
+      <Text
+        className="text-2xl font-semibold text-gray-800 text-center mb-4"
+        accessibilityRole="header"
+      >
+        No Tickets Available
+      </Text>
+      <Text className="text-center text-gray-600 mb-4">
         We couldn't find any tickets that match your search criteria. This might
         be due to the route, date, or current availability.
       </Text>

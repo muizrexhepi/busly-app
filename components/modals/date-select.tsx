@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Pressable } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { format, parse, isValid } from "date-fns";
 import useSearchStore from "@/store";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
-import { AntDesign } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 
 const DateSelect = ({ parseDate }: { parseDate: any }) => {
   const { departureDate, setDepartureDate } = useSearchStore();
@@ -43,10 +43,13 @@ const DateSelect = ({ parseDate }: { parseDate: any }) => {
 
   return (
     <>
-      <TouchableOpacity className="flex-1" onPress={handlePresentModalPress}>
+      <Pressable
+        className="flex-1 bg-secondary/10 rounded-lg p-4"
+        onPress={handlePresentModalPress}
+      >
         <View className="flex-row items-center gap-3">
-          <View className="w-8 h-8 rounded-full bg-gray-50 items-center justify-center">
-            <AntDesign name="calendar" size={18} color="#666" />
+          <View className="w-8 h-8 rounded-full items-center justify-center">
+            <Ionicons name="calendar" size={24} color="#666" />
           </View>
           <View className="flex-1">
             <Text className="text-gray-500 text-sm">Departure</Text>
@@ -57,7 +60,7 @@ const DateSelect = ({ parseDate }: { parseDate: any }) => {
             </Text>
           </View>
         </View>
-      </TouchableOpacity>
+      </Pressable>
 
       <BottomSheetModal
         ref={bottomSheetModalRef}
@@ -87,14 +90,14 @@ const DateSelect = ({ parseDate }: { parseDate: any }) => {
                 ? {
                     [format(selectedDate, "yyyy-MM-dd")]: {
                       selected: true,
-                      selectedColor: "#007AFF",
+                      selectedColor: "#15203e",
                     },
                   }
                 : {}
             }
             minDate={new Date().toISOString()}
             theme={{
-              selectedDayBackgroundColor: "#007AFF",
+              selectedDayBackgroundColor: "#15203e",
               selectedDayTextColor: "#FFFFFF",
               todayTextColor: "#007AFF",
               dayTextColor: "#2d4150",

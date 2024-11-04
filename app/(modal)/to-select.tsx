@@ -8,12 +8,11 @@ import {
   TouchableOpacity,
 } from "react-native";
 import DismissKeyboard from "@/components/dismiss-keyboard";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { useStations } from "@/contexts/station-provider";
 import useSearchStore from "@/store";
 import { useNavigation } from "expo-router";
 import { Station } from "@/models/station";
-import { MapPin } from "lucide-react-native";
 
 const ToStationSelect = () => {
   const navigation = useNavigation();
@@ -35,7 +34,7 @@ const ToStationSelect = () => {
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center bg-white">
-        <ActivityIndicator size="large" color="#007BFF" />
+        <ActivityIndicator size="large" color="#15203e" />
       </View>
     );
   }
@@ -64,7 +63,7 @@ const ToStationSelect = () => {
                 onPress={() => setSearchQuery("")}
                 className="absolute right-2 top-1/2 -translate-y-1/2"
               >
-                <AntDesign name="closecircle" size={20} color="#007BFF" />
+                <AntDesign name="closecircle" size={20} color="#15203e" />
               </TouchableOpacity>
             )}
           </View>
@@ -77,7 +76,7 @@ const ToStationSelect = () => {
               className="py-4 mx-4 shadow-md border-b border-neutral-200 flex-row items-center gap-4"
               onPress={() => handleStationSelect(item)}
             >
-              <MapPin className="w-5 h-5 text-primary" />
+              <MaterialIcons name="place" size={24} color="#666" />
               <View>
                 <Text className="text-black font-semibold capitalize">
                   {item.city}
