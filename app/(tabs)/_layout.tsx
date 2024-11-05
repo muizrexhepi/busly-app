@@ -11,10 +11,8 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: "#fffffe",
           height: 80,
-          shadowColor: "gray",
-          shadowRadius: 10,
-          shadowOffset: { width: 0, height: 5 },
-          shadowOpacity: 0.3,
+          borderTopColor: "#efefef",
+          borderTopWidth: 1,
         },
         tabBarActiveTintColor: "#15203e",
         tabBarInactiveTintColor: "#b3b3b3",
@@ -23,7 +21,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: "",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "home" : "home-outline"}
@@ -35,7 +33,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="bookings"
         options={{
-          title: "Bookings",
+          title: "",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "calendar" : "calendar-outline"}
@@ -45,9 +43,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="account"
+        name="profile"
         options={{
-          title: "Account",
+          title: "",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "person" : "person-outline"}

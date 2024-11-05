@@ -42,7 +42,7 @@ export default function RootLayout() {
   return (
     <StationsProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar barStyle="dark-content" backgroundColor="#fffffe" />
+        <StatusBar barStyle="light-content" backgroundColor="#fffffe" />
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen
@@ -87,6 +87,54 @@ export default function RootLayout() {
             }}
           />
           <Stack.Screen
+            name="profile/settings/index"
+            options={{
+              title: "Settings",
+              headerStyle: {
+                backgroundColor: "#15203e",
+              },
+              headerTintColor: "white",
+              headerShadowVisible: false,
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <AntDesign name="left" size={24} color={"white"} />
+                </TouchableOpacity>
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="profile/notifications/index"
+            options={{
+              title: "Notifications",
+              headerStyle: {
+                backgroundColor: "#15203e",
+              },
+              headerTintColor: "white",
+              headerShadowVisible: false,
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <AntDesign name="left" size={24} color={"white"} />
+                </TouchableOpacity>
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="profile/support/index"
+            options={{
+              title: "Support",
+              headerStyle: {
+                backgroundColor: "#15203e",
+              },
+              headerTintColor: "white",
+              headerShadowVisible: false,
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <AntDesign name="left" size={24} color={"white"} />
+                </TouchableOpacity>
+              ),
+            }}
+          />
+          <Stack.Screen
             name="checkout/success/index"
             options={({ navigation }) => ({
               headerShown: false,
@@ -114,6 +162,18 @@ export default function RootLayout() {
               headerLeft: () => (
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                   <AntDesign name="left" size={24} color={"white"} />
+                </TouchableOpacity>
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="(modal)/sign-in"
+            options={{
+              headerTitle: "",
+              presentation: "modal",
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <AntDesign name="close" size={24} color={"#000"} />
                 </TouchableOpacity>
               ),
             }}

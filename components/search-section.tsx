@@ -18,7 +18,6 @@ export const SearchSection = () => {
     departureDate,
     returnDate,
     passengers,
-    setReturnDate,
   } = useSearchStore();
 
   const handleSearch = useCallback(() => {
