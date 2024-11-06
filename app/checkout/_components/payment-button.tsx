@@ -161,7 +161,7 @@ export const PaymentButton = ({
         depositAmount: useDeposit ? depositAmount : 0,
       });
       console.log("Payment attempt logged successfully");
-
+      console.log({ finalPrice, totalPrice });
       console.log("Creating payment intent...", {
         passengers,
         amount_in_cents: finalPrice * 100,
@@ -294,15 +294,22 @@ export const PaymentButton = ({
       try {
         const savedBookings = await AsyncStorage.getItem("noUserBookings");
         const parsedBookings = savedBookings ? JSON.parse(savedBookings) : [];
+
+        // Verify data structure of response.data.data
+        console.log("New Booking:", response.data.data);
+
+        // Add new booking
         parsedBookings.push(response.data.data);
+
+        // Save updated array back to AsyncStorage
         await AsyncStorage.setItem(
           "noUserBookings",
           JSON.stringify(parsedBookings)
         );
-      } catch (storageError) {
-        console.error("Failed to save booking to storage:", storageError);
+        console.log("Bookings saved successfully:", parsedBookings);
+      } catch (error) {
+        console.error("Error handling noUserBookings:", error);
       }
-
       return response.data.data;
     } catch (error: any) {
       console.error("Error creating booking:", error);

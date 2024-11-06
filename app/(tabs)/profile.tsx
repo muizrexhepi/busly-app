@@ -31,24 +31,6 @@ export default function ProfileTab() {
         </View>
       </View>
       <ScrollView className="flex-1 bg-white">
-        {/*<ImageBackground
-        source={{ uri: 'https://placeholder.com/1000x300' }}
-        className="w-full h-72 justify-end p-6"
-      >
-        <View className="bg-white bg-opacity-80 rounded-lg p-4">
-          <Text className="text-2xl font-bold mb-2">Welcome to GoBusly</Text>
-          <Text className="text-base mb-4">
-            With your GoBusly account, enjoy faster bookings, personalized travel preferences, and exclusive deals!
-          </Text>
-          <TouchableOpacity 
-            className="bg-blue-500 py-2 px-4 rounded-full self-start"
-            onPress={() => navigation.navigate('SignIn')}
-          >
-            <Text className="text-white font-bold">Sign In</Text>
-          </TouchableOpacity>
-        </View>
-      </ImageBackground>*/}
-
         <View className="rounded-lg px-4 overflow-hidden">
           {PROFILE_LINKS.map((link, index) => (
             <TouchableOpacity

@@ -36,11 +36,11 @@ export const PROFILE_LINKS = [
     icon: "card-outline" as keyof typeof Ionicons.glyphMap,
     route: "/profile/payment-methods",
   },
-  {
-    title: "Travel Preferences",
-    icon: "airplane-outline" as keyof typeof Ionicons.glyphMap,
-    route: "/profile/travel-preferences",
-  },
+  // {
+  //   title: "Travel Preferences",
+  //   icon: "airplane-outline" as keyof typeof Ionicons.glyphMap,
+  //   route: "/profile/travel-preferences",
+  // },
   {
     title: "Notifications",
     icon: "notifications-outline" as keyof typeof Ionicons.glyphMap,
