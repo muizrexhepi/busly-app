@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "487048169754",
+    "project_id": "go-busly",
+    "storage_bucket": "go-busly.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:487048169754:android:f183622e75b3740faa04a3",
+        "android_client_info": {
+          "package_name": "com.gobusly.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAilB37RGWCJ4DpK2rU8QT-m_D3XVQhMMU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
