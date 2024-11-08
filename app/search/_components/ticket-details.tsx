@@ -10,7 +10,7 @@ import {
   BusFront,
 } from "lucide-react-native";
 import moment from "moment-timezone";
-import InfoBlock from "../info-block";
+import InfoBlock from "../../../components/info-block";
 import { useCheckoutStore } from "@/store";
 
 export default function TicketDetails() {

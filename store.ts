@@ -68,7 +68,12 @@ export const useCheckoutStore = create<CheckoutState>()(
             setSelectedTicket: (ticket) => set({ selectedTicket: ticket }),
             setOutboundTicket: (ticket) => set({ outboundTicket: ticket }),
             setReturnTicket: (ticket) => set({ returnTicket: ticket }),
-            setIsSelectingReturn: (isSelecting) => set({ isSelectingReturn: isSelecting }),
+            setIsSelectingReturn: (isSelecting) => {
+                set((state) => ({
+                    isSelectingReturn: isSelecting,
+                    returnTicket: isSelecting ? state.returnTicket : null
+                }));
+            },
             setPassengers: (passengers) => set({ passengers }),
             setSelectedFlex: (flex) => set({ selectedFlex: flex }),
             setFlexPrice: (price) => set({ flexPrice: price }),
@@ -108,7 +113,7 @@ interface SearchState {
     departureDate: string | null;
     returnDate: string | null;
     tripType: 'one-way' | 'round-trip'; 
-
+    swapLocations: () => void; 
     setFrom: (from: string) => void;
     setTo: (to: string) => void;
     setFromCity: (fromCity: string) => void;
@@ -121,7 +126,7 @@ interface SearchState {
     resetSearch: () => void;
 }
 
-const initialState: Omit<SearchState, 'setFrom' | 'setTo' | 'setFromCity' | 'setToCity' | 'setRoute' | 'setPassengers' | 'setDepartureDate' | 'setReturnDate' | 'setTripType' | 'resetSearch'> = {
+const initialState: Omit<SearchState,'swapLocations'| 'setFrom' | 'setTo' | 'setFromCity' | 'setToCity' | 'setRoute' | 'setPassengers' | 'setDepartureDate' | 'setReturnDate' | 'setTripType' | 'resetSearch'> = {
     from: '',
     to: '',
     fromCity: '',
@@ -149,6 +154,12 @@ const useSearchStore = create<SearchState>()(
             setDepartureDate: (departureDate) => set({ departureDate }),
             setReturnDate: (returnDate) => set({ returnDate }),
             setTripType: (tripType) => set({ tripType }),
+            swapLocations: () => set((state) => ({
+                from: state.to,
+                to: state.from,
+                fromCity: state.toCity,
+                toCity: state.fromCity,
+            })),
             resetSearch: () => set((state) => ({
                 from: state.from || initialState.from,
                 to: state.to || initialState.to,

@@ -3,21 +3,21 @@ import { View, Text, Pressable, Alert } from "react-native";
 import * as Notifications from "expo-notifications";
 import { cn } from "@/lib/utils";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
-});
+// Notifications.setNotificationHandler({
+//   handleNotification: async () => ({
+//     shouldShowAlert: true,
+//     shouldPlaySound: false,
+//     shouldSetBadge: false,
+//   }),
+// });
 
-Notifications.scheduleNotificationAsync({
-  content: {
-    title: "Look at that notification",
-    body: "I'm so proud of myself!",
-  },
-  trigger: null,
-});
+// Notifications.scheduleNotificationAsync({
+//   content: {
+//     title: "Look at that notification",
+//     body: "I'm so proud of myself!",
+//   },
+//   trigger: null,
+// });
 
 const NotificationsPage = () => {
   const [notifications, setNotifications] = useState<boolean>(false);

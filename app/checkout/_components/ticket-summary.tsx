@@ -19,6 +19,7 @@ export default function TicketSummary({
   const from = isReturn ? ticket.stops[0].to.city : ticket.stops[0].from.city;
   const to = isReturn ? ticket.stops[0].from.city : ticket.stops[0].to.city;
 
+  console.log({ ticket });
   return (
     <View className="bg-white rounded-xl py-4 ">
       <Text className="text-base mb-2">

@@ -4,13 +4,12 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import "../globals.css";
-import { StatusBar, TouchableOpacity, Text, View } from "react-native";
+import { StatusBar, TouchableOpacity } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { StationsProvider } from "@/contexts/station-provider";
-import useSearchStore from "@/store";
-import { format } from "date-fns";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StripeProvider } from "@stripe/stripe-react-native";
+import SearchHeader from "./search/_components/search-header";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -19,7 +18,6 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
   const navigation = useNavigation();
-  const { fromCity, toCity, departureDate } = useSearchStore();
 
   useEffect(() => {
     if (loaded) {
@@ -27,18 +25,9 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  const capitalize = (str: string) =>
-    str.charAt(0).toUpperCase() + str.slice(1);
-
   if (!loaded) {
     return null;
   }
-
-  const formatDepartureDate = (dateString: any) => {
-    if (!dateString) return "";
-    const [day, month, year] = dateString.split("-");
-    return format(new Date(`${year}-${month}-${day}`), "EEE, MMM d");
-  };
 
   return (
     <StripeProvider
@@ -53,16 +42,7 @@ export default function RootLayout() {
             <Stack.Screen
               name="search/search-results"
               options={{
-                headerTitle: () => (
-                  <View style={{ alignItems: "center" }}>
-                    <Text style={{ color: "white", fontWeight: "bold" }}>
-                      {`${capitalize(fromCity)} to ${capitalize(toCity)}`}
-                    </Text>
-                    <Text style={{ color: "#bbbbbb" }}>
-                      {formatDepartureDate(departureDate)}
-                    </Text>
-                  </View>
-                ),
+                headerTitle: () => <SearchHeader />,
                 headerStyle: {
                   backgroundColor: "#15203e",
                 },

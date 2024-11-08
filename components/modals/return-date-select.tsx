@@ -46,6 +46,7 @@ const ReturnDateSelect: React.FC<DateSelectProps> = ({ parseDate }) => {
   };
 
   const handlePresentModalPress = useCallback(() => {
+    setTripType("round-trip");
     bottomSheetModalRef.current?.present();
   }, []);
 

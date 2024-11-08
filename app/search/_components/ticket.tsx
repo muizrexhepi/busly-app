@@ -8,38 +8,23 @@ import { router } from "expo-router";
 
 export interface TicketBlockProps {
   ticket: Ticket;
-  isReturn?: boolean;
+  isFastest?: boolean;
+  isCheapest?: boolean;
+  onSelect: (ticket: Ticket, isFromModal?: boolean) => void;
 }
 
-const TicketBlock: React.FC<TicketBlockProps> = ({ ticket, isReturn }) => {
+const TicketBlock: React.FC<TicketBlockProps> = ({
+  ticket,
+  isFastest,
+  isCheapest,
+  onSelect,
+}) => {
   const {
-    setOutboundTicket,
     outboundTicket,
-    setReturnTicket,
-    returnTicket,
-    setIsSelectingReturn,
+
     isSelectingReturn,
   } = useCheckoutStore();
   const { tripType } = useSearchStore();
-
-  const handleTicketSelection = () => {
-    if (isSelectingReturn) {
-      if (ticket._id !== returnTicket?._id) {
-        setReturnTicket(ticket);
-      }
-      router.push("/checkout");
-    } else {
-      if (ticket._id !== outboundTicket?._id) {
-        setOutboundTicket(ticket);
-      }
-
-      if (tripType === "round-trip") {
-        setIsSelectingReturn(true);
-      } else {
-        router.push("/checkout");
-      }
-    }
-  };
 
   const departureDate = moment.utc(ticket.departure_date);
   const arrivalTime = moment.utc(
@@ -55,9 +40,20 @@ const TicketBlock: React.FC<TicketBlockProps> = ({ ticket, isReturn }) => {
           <Text className="text-emerald-500 font-bold text-lg mr-2">
             {ticket.operatorInfo.name}
           </Text>
-          <View className="bg-secondary/30 px-2 py-1 rounded">
-            <Text className="text-primary text-xs font-semibold">CHEAPEST</Text>
-          </View>
+          {isCheapest && (
+            <View className="bg-secondary/30 px-2 py-1 rounded">
+              <Text className="text-primary text-xs font-semibold">
+                CHEAPEST
+              </Text>
+            </View>
+          )}
+          {isFastest && (
+            <View className="ml-2 bg-secondary/30 px-2 py-1 rounded">
+              <Text className="text-primary text-xs font-semibold">
+                FASTEST
+              </Text>
+            </View>
+          )}
         </View>
         <Text className="text-xl font-bold">
           £{ticket.stops[0].other_prices.our_price.toFixed(2)}
@@ -120,10 +116,18 @@ const TicketBlock: React.FC<TicketBlockProps> = ({ ticket, isReturn }) => {
 
         <TouchableOpacity
           className="bg-primary px-3 py-2 rounded-full flex flex-row items-center"
-          onPress={handleTicketSelection}
+          onPress={() => onSelect(ticket, true)}
         >
-          <Text className="text-white mr-1">Continue</Text>
-          <Ionicons name="chevron-forward" size={16} color="white" />
+          <Text className="text-white mr-1">
+            {isSelectingReturn && outboundTicket
+              ? "Select return"
+              : tripType !== "round-trip"
+              ? "Continue"
+              : "Select outbound"}
+          </Text>
+          {tripType !== "round-trip" && (
+            <Ionicons name="chevron-forward" size={16} color="white" />
+          )}
         </TouchableOpacity>
       </View>
     </View>

@@ -1,9 +1,8 @@
-import { SearchSection } from "@/components/search-section";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import Header from "@/components/header";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import HomeBackground from "@/components/home/home-background";
+import { SearchSection } from "../search/_components/search-section";
 
 export default function HomeScreen() {
   return (

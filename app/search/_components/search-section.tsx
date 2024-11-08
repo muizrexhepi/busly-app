@@ -1,11 +1,11 @@
 import { Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
-import { SecondaryButton } from "./secondary-button";
 import { FontAwesome6, MaterialIcons } from "@expo/vector-icons";
-import { useCallback } from "react";
-import useSearchStore from "@/store";
-import DateSelector from "./date-select-block";
-import PassengerSelect from "./modals/passengers-select";
+import { useCallback, useEffect } from "react";
+import useSearchStore, { useCheckoutStore } from "@/store";
+import DateSelector from "@/components/date-select-block";
+import PassengerSelect from "@/components/modals/passengers-select";
+import { SecondaryButton } from "@/components/secondary-button";
 
 export const SearchSection = () => {
   const {
@@ -18,7 +18,10 @@ export const SearchSection = () => {
     departureDate,
     returnDate,
     passengers,
+    resetSearch,
   } = useSearchStore();
+
+  const { resetCheckout } = useCheckoutStore();
 
   const handleSearch = useCallback(() => {
     const searchParams = new URLSearchParams({
@@ -36,7 +39,10 @@ export const SearchSection = () => {
     router.push(`/search/search-results?${searchParams.toString()}`);
   }, [from, to, departureDate, returnDate, passengers, tripType]);
 
-  console.log({ datqafrom: departureDate });
+  useEffect(() => {
+    resetSearch();
+    resetCheckout();
+  }, []);
 
   const formatPassengers = () => {
     const adults = passengers.adults;

@@ -10,17 +10,18 @@ import {
 import { router, useLocalSearchParams } from "expo-router";
 import { environment } from "@/environment";
 import { Ticket } from "@/models/ticket";
-import NoTicketsAvailable from "@/components/search/no-tickets";
-import TicketBlock from "@/components/search/ticket";
-import DateChanger from "@/components/search/date-changer";
+import NoTicketsAvailable from "@/app/search/_components/no-tickets";
+import TicketBlock from "@/app/search/_components/ticket";
+import DateChanger from "@/app/search/_components/date-changer";
 import useSearchStore, { useCheckoutStore, useLoadingStore } from "@/store";
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
-import TicketDetails from "@/components/search/ticket-details";
+import TicketDetails from "@/app/search/_components/ticket-details";
 import { PrimaryButton } from "@/components/primary-button";
+import moment from "moment-timezone";
 
 const SearchResults = () => {
   const params = useLocalSearchParams();
@@ -51,73 +52,144 @@ const SearchResults = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMoreData, setHasMoreData] = useState(true);
 
-  const handleTicketSelection = (ticket: Ticket) => {
-    if (isSelectingReturn) {
-      setIsLoading(true);
-      setReturnTicket(ticket);
-      router.push("/checkout");
-    } else {
-      setOutboundTicket(ticket);
-      setIsLoading(true);
-      if (tripType === "round-trip" && returnDate) {
-        setIsLoading(false);
-        setIsSelectingReturn(true);
-      } else {
-        setIsLoading(false);
-        router.push("/checkout");
-      }
-    }
+  const handlePresentModalPress = () => {
+    bottomSheetModalRef.current?.present();
   };
-  const fetchTickets = async (page: number, isLoadingMore = false) => {
-    if (!departureStation || !arrivalStation || !hasMoreData) {
-      return;
-    }
 
-    try {
-      if (!isLoadingMore) {
-        setIsLoading(true);
-      }
-      setIsLoadingMore(isLoadingMore);
-
-      const response = await fetch(
-        `${environment.apiurl}/ticket/search?departureStation=${departureStation}&arrivalStation=${arrivalStation}&departureDate=${departureDate}&adults=${adult}&children=${children}&page=${page}`
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch tickets");
-      }
-
-      const data = await response.json();
-      const newTickets = data.data || [];
-
-      if (newTickets.length === 0) {
-        if (page === 1) {
-          setNoData(true);
+  const fetchTickets = useCallback(
+    async (page: number, isLoadingMore = false) => {
+      try {
+        if (!isLoadingMore) {
+          setIsLoading(true);
         }
-        setHasMoreData(false);
-      } else {
-        setNoData(false);
-        if (isLoadingMore) {
-          setTickets((prevTickets) => [...prevTickets, ...newTickets]);
+
+        const currentDepartureStation = isSelectingReturn
+          ? arrivalStation
+          : departureStation;
+        const currentArrivalStation = isSelectingReturn
+          ? departureStation
+          : arrivalStation;
+        const currentDate = isSelectingReturn ? returnDate : departureDate;
+
+        const response = await fetch(
+          `${environment.apiurl}/ticket/search?` +
+            `departureStation=${currentDepartureStation}&` +
+            `arrivalStation=${currentArrivalStation}&` +
+            `departureDate=${currentDate}&` +
+            `adults=${adult}&` +
+            `children=${children}&` +
+            `page=${page}`
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch tickets");
+        }
+
+        const data = await response.json();
+        const newTickets = data.data || [];
+        if (newTickets.length === 0) {
+          if (page === 1) {
+            setNoData(true);
+          }
+          setHasMoreData(false);
         } else {
-          setTickets(newTickets);
+          setNoData(false);
+          if (isLoadingMore) {
+            setTickets((prevTickets) => [...prevTickets, ...newTickets]);
+          } else {
+            setTickets(newTickets);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching tickets:", err);
+        if (page === 1) setNoData(true);
+      } finally {
+        setIsLoading(false);
+        setIsLoadingMore(false);
+      }
+    },
+    [isSelectingReturn, params]
+  );
+
+  const handleTicketSelection = useCallback(
+    async (ticket: Ticket, isFromModal = false) => {
+      if (!isFromModal) {
+        setSelectedTicket(ticket);
+        handlePresentModalPress();
+        return;
+      }
+
+      if (isSelectingReturn) {
+        setIsLoading(true);
+        setReturnTicket(ticket);
+        router.push("/checkout");
+      } else {
+        setOutboundTicket(ticket);
+        setIsLoading(true);
+        if (tripType === "round-trip" && returnDate) {
+          setIsLoading(true);
+          setIsSelectingReturn(true);
+
+          const returnParams = {
+            departureStation: params.arrivalStation,
+            arrivalStation: params.departureStation,
+            departureDate: params.returnDate,
+            returnDate: params.returnDate,
+            adult: params.adult,
+            children: params.children,
+          };
+
+          router.setParams(returnParams);
+
+          setTickets([]);
+          setCurrentPage(1);
+          setHasMoreData(true);
+          try {
+            const response = await fetch(
+              `${environment.apiurl}/ticket/search?` +
+                `departureStation=${returnParams.departureStation}&` +
+                `arrivalStation=${returnParams.arrivalStation}&` +
+                `departureDate=${returnParams.departureDate}&` +
+                `adults=${returnParams.adult}&` +
+                `children=${returnParams.children}&` +
+                `page=1`
+            );
+
+            if (!response.ok) {
+              throw new Error("Failed to fetch tickets");
+            }
+
+            const data = await response.json();
+            const newTickets = data.data || [];
+
+            if (newTickets.length === 0) {
+              setNoData(true);
+              setHasMoreData(false);
+            } else {
+              setNoData(false);
+              setTickets(newTickets);
+            }
+          } catch (err) {
+            console.error("Error fetching return tickets:", err);
+            setNoData(true);
+          } finally {
+            setIsLoading(false);
+          }
+        } else {
+          setIsLoading(false);
+          router.push("/checkout");
         }
       }
-    } catch (err) {
-      if (page === 1) {
-        setNoData(true);
-      }
-    } finally {
-      setIsLoading(false);
-      setIsLoadingMore(false);
-    }
-  };
+    },
+    [isSelectingReturn, tripType, returnDate, params, fetchTickets]
+  );
 
   useEffect(() => {
+    setTickets([]);
     setCurrentPage(1);
     setHasMoreData(true);
     fetchTickets(1);
-  }, [departureStation, arrivalStation, departureDate, adult, children]);
+  }, [isSelectingReturn]);
 
   const handleLoadMore = () => {
     if (!isLoadingMore && hasMoreData && !isLoading) {
@@ -136,19 +208,45 @@ const SearchResults = () => {
     );
   };
 
-  const renderTicket = ({ item }: { item: Ticket }) => (
-    <TouchableOpacity
-      onPress={() => {
-        setSelectedTicket(item);
-        handlePresentModalPress();
-      }}
-    >
-      <TicketBlock ticket={item} />
-    </TouchableOpacity>
-  );
+  const renderTicket = ({ item }: { item: Ticket }) => {
+    const ticketDurations = tickets.map((t) => {
+      const tDepartureDate = moment.utc(t.departure_date);
+      const tArrivalTime = moment.utc(t.stops[t.stops.length - 1].arrival_time);
+      return {
+        ticket: t,
+        durationMs: tArrivalTime.diff(tDepartureDate),
+      };
+    });
 
-  const handlePresentModalPress = () => {
-    bottomSheetModalRef.current?.present();
+    const minDuration = Math.min(...ticketDurations.map((td) => td.durationMs));
+    const fastestTickets = ticketDurations.filter(
+      (td) => td.durationMs === minDuration
+    );
+
+    const isFastest =
+      fastestTickets.length === 1 && fastestTickets[0].ticket === item;
+
+    const ticketPrices = tickets.map((t) => ({
+      ticket: t,
+      price: t.stops[0].price,
+    }));
+
+    const minPrice = Math.min(...ticketPrices.map((tp) => tp.price));
+    const cheapestTickets = ticketPrices.filter((tp) => tp.price === minPrice);
+
+    const isCheapest =
+      cheapestTickets.length === 1 && cheapestTickets[0].ticket === item;
+
+    return (
+      <TouchableOpacity onPress={() => handleTicketSelection(item)}>
+        <TicketBlock
+          ticket={item}
+          isFastest={isFastest}
+          isCheapest={isCheapest}
+          onSelect={handleTicketSelection}
+        />
+      </TouchableOpacity>
+    );
   };
 
   return (
@@ -185,7 +283,7 @@ const SearchResults = () => {
             <View className="bg-white absolute bottom-4 w-full left-4">
               <PrimaryButton
                 className="bg-primary w-full my-4"
-                onPress={() => handleTicketSelection(selectedTicket!)}
+                onPress={() => handleTicketSelection(selectedTicket!, true)}
               >
                 <Text className="text-white text-center font-medium text-lg">
                   Continue
