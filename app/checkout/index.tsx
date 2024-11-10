@@ -8,6 +8,7 @@ import PaymentMethod from "./_components/payment-method";
 const Checkout = () => {
   return (
     <ScrollView
+      keyboardDismissMode="on-drag"
       className="h-full bg-gray-100"
       contentInsetAdjustmentBehavior="automatic"
     >

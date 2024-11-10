@@ -1,15 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
-import PhoneInput from "react-native-phone-number-input";
 import { X } from "lucide-react-native";
 import useSearchStore, { PassengerData, useCheckoutStore } from "@/store";
-import CustomPhoneInput from "./custom-phone-input";
+import { passengerSchema } from "@/schemas";
+import { z } from "zod";
 
 interface InputFieldProps {
   label: string;
   placeholder: string;
   value: string;
   onChangeText: (text: string) => void;
+  onBlur: () => void;
   keyboardType?:
     | "default"
     | "email-address"
@@ -18,34 +19,59 @@ interface InputFieldProps {
     | "number-pad"
     | "decimal-pad";
   secureTextEntry?: boolean;
+  error?: string;
 }
 
-const InputField: React.FC<InputFieldProps> = ({
+type ValidationErrors = {
+  [key in keyof PassengerData]?: string;
+};
+
+function InputField({
   label,
   placeholder,
   value,
   onChangeText,
+  onBlur,
   keyboardType = "default",
   secureTextEntry = false,
-}) => (
-  <View className="space-y-1 mb-2 center h-14 bg-secondary/10 rounded-xl px-4 py-1">
-    <Text className="text-sm text-gray-500">{label}</Text>
+  error,
+}: InputFieldProps) {
+  const [isFocused, setIsFocused] = useState(false);
 
-    <TextInput
-      placeholder={placeholder}
-      value={value}
-      onChangeText={onChangeText}
-      keyboardType={keyboardType}
-      secureTextEntry={secureTextEntry}
-      className="text-black text-base"
-      placeholderTextColor="#6B7280"
-    />
-  </View>
-);
+  return (
+    <View className="mb-2">
+      <Text className="text-base text-gray-500 mb-1">{label} *</Text>
+      <TextInput
+        placeholder={placeholder}
+        value={value}
+        onChangeText={onChangeText}
+        onBlur={() => {
+          setIsFocused(false);
+          onBlur();
+        }}
+        onFocus={() => setIsFocused(true)}
+        keyboardType={keyboardType}
+        secureTextEntry={secureTextEntry}
+        className={`flex-row items-center h-14 bg-secondary/10 border rounded-xl px-4 text-black text-base
+                    ${
+                      isFocused
+                        ? "border-[#55aac4]"
+                        : error
+                        ? "border-red-500"
+                        : "border-transparent"
+                    }`}
+        placeholderTextColor="#6B7280"
+      />
+      {error && <Text className="text-red-500 text-sm mt-1">{error}</Text>}
+    </View>
+  );
+}
 
 const PassengerInfo: React.FC = () => {
   const { passengers, setPassengers } = useCheckoutStore();
-
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors[]>(
+    []
+  );
   const { passengers: passengersAmount, setPassengers: setPassengersAmount } =
     useSearchStore();
 
@@ -79,6 +105,7 @@ const PassengerInfo: React.FC = () => {
     ];
 
     setPassengers(initialPassengers);
+    setValidationErrors(Array(adults + children).fill({}));
   }, [adults, children, setPassengers]);
 
   const updatePassenger = (
@@ -109,8 +136,34 @@ const PassengerInfo: React.FC = () => {
     setPassengers(updatedPassengers);
   };
 
+  const validatePassenger = (index: number, field: keyof PassengerData) => {
+    const passengerData = passengers[index];
+    const fieldSchema = passengerSchema.shape[field];
+
+    try {
+      fieldSchema.parse(passengerData[field]);
+      setValidationErrors((prev) => {
+        const newErrors = [...prev];
+        newErrors[index] = { ...newErrors[index], [field]: undefined };
+        return newErrors;
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setValidationErrors((prev) => {
+          const newErrors = [...prev];
+          newErrors[index] = {
+            ...newErrors[index],
+            [field]: error.errors[0]?.message || `Invalid ${field}`,
+          };
+          return newErrors;
+        });
+      }
+    }
+  };
+
   const renderPassengerInputs = (passengerIndex: number, isChild: boolean) => {
     const passenger = passengers[passengerIndex];
+    const errors = validationErrors[passengerIndex] || {};
 
     const removePassenger = () => {
       if (isChild) {
@@ -119,7 +172,6 @@ const PassengerInfo: React.FC = () => {
         setPassengersAmount({ children, adults: adults - 1 });
       }
     };
-
     return (
       <View key={passengerIndex} className="mb-4">
         <View className="flex-row items-center justify-between mb-2">
@@ -140,34 +192,14 @@ const PassengerInfo: React.FC = () => {
 
         <View className="space-y-2">
           <InputField
-            label={"First name"}
-            placeholder={"John Doe"}
-            value={passenger.full_name.split(" ")[0] || ""}
-            onChangeText={(value) => {
-              const lastName = passenger.full_name
-                .split(" ")
-                .slice(1)
-                .join(" ");
-              updatePassenger(
-                passengerIndex,
-                "full_name",
-                `${value} ${lastName}`.trim()
-              );
-            }}
-          />
-
-          <InputField
-            label="Last Name"
-            placeholder="Doe"
-            value={passenger.full_name.split(" ").slice(1).join(" ") || ""}
-            onChangeText={(value) => {
-              const firstName = passenger.full_name.split(" ")[0];
-              updatePassenger(
-                passengerIndex,
-                "full_name",
-                `${firstName} ${value}`.trim()
-              );
-            }}
+            label="Full Name"
+            placeholder="John Doe"
+            value={passenger.full_name}
+            onChangeText={(value) =>
+              updatePassenger(passengerIndex, "full_name", value)
+            }
+            onBlur={() => validatePassenger(passengerIndex, "full_name")}
+            error={errors.full_name}
           />
 
           {passengerIndex === 0 && (
@@ -175,20 +207,24 @@ const PassengerInfo: React.FC = () => {
               <InputField
                 label="Email"
                 placeholder="example@example.com"
-                value={passenger.email}
+                value={passenger.email || ""}
                 onChangeText={(value) =>
                   updatePassenger(passengerIndex, "email", value.toLowerCase())
                 }
+                onBlur={() => validatePassenger(passengerIndex, "email")}
                 keyboardType="email-address"
+                error={errors.email}
               />
-
-              <CustomPhoneInput
+              <InputField
                 label="Phone Number"
-                placeholder="Enter phone number"
-                value={passenger.phone}
-                onChangeText={(text) =>
-                  updatePassenger(passengerIndex, "phone", text)
+                placeholder="+1 234 5678"
+                value={passenger.phone || ""}
+                onChangeText={(value) =>
+                  updatePassenger(passengerIndex, "phone", value)
                 }
+                onBlur={() => validatePassenger(passengerIndex, "phone")}
+                keyboardType="phone-pad"
+                error={errors.phone}
               />
             </>
           )}
@@ -197,11 +233,13 @@ const PassengerInfo: React.FC = () => {
             <InputField
               label="Birthdate"
               placeholder="YYYY-MM-DD"
-              value={passenger.birthdate}
+              value={passenger.birthdate || ""}
               onChangeText={(value) =>
                 updatePassenger(passengerIndex, "birthdate", value)
               }
+              onBlur={() => validatePassenger(passengerIndex, "birthdate")}
               keyboardType="numeric"
+              error={errors.birthdate}
             />
           )}
         </View>

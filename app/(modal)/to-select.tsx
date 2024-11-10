@@ -27,7 +27,7 @@ const ToStationSelect = () => {
   );
 
   const displayData =
-    searchQuery.length > 0
+    searchQuery.length > 0 || recentStations.length < 1
       ? stations.filter((station) =>
           station.name.toLowerCase().includes(searchQuery.toLowerCase())
         )
@@ -98,7 +98,9 @@ const ToStationSelect = () => {
           ListHeaderComponent={() => (
             <View className="w-full px-4 py-2 bg-secondary/10">
               <Text className="text-primary font-medium">
-                {searchQuery.length > 0 ? "Search Results" : "Recent Stations"}
+                {searchQuery.length > 0 || recentStations.length < 1
+                  ? "Search Results"
+                  : "Recent Stations"}
               </Text>
             </View>
           )}

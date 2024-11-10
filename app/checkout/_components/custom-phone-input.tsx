@@ -31,12 +31,12 @@ const CustomPhoneInput: React.FC<CustomPhoneInputProps> = ({
   };
 
   return (
-    <View className="space-y-1 mb-2">
-      <Text className="text-sm text-gray-500">{label}</Text>
+    <View className="mb-2">
+      <Text className="text-base text-gray-500 mb-1">{label} *</Text>
 
-      <View className="flex-row items-center h-14 bg-secondary/10 rounded-xl px-4">
+      <View className="flex-row items-center h-14 bg-secondary/10 rounded-lg px-4">
         <View className="flex-row items-center gap-3">
-          <FontAwesome name="globe" size={24} color="#666" />
+          <FontAwesome name="globe" size={20} color="#666" />
           <Text className="text-gray-500 text-sm">+MK</Text>
         </View>
 
