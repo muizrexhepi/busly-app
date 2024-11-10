@@ -3,7 +3,7 @@ import { Ticket } from './models/ticket';
 import { addDays, format } from 'date-fns';
 import { createJSONStorage, persist, PersistOptions } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { CardFieldInput } from '@stripe/stripe-react-native';
+import { CardFieldInput, CardFormView } from '@stripe/stripe-react-native';
 
 export interface PassengerData {
     full_name: string;
@@ -38,7 +38,7 @@ interface CheckoutState {
     selectedFlex: any;
     flexPrice: number;
     totalCost: number;
-    cardDetails: CardFieldInput.Details | null;
+    cardDetails: CardFormView.Details | CardFieldInput.Details | null; // Updated type
 
     setSelectedTicket: (ticket: any) => void;
     setOutboundTicket: (ticket: any) => void;
@@ -47,7 +47,7 @@ interface CheckoutState {
     setPassengers: (passengers: any[]) => void;
     setSelectedFlex: (flex: any) => void;
     setFlexPrice: (price: number) => void;
-    setCardDetails: (details: CardFieldInput.Details | null) => void;
+    setCardDetails: (details: CardFormView.Details | CardFieldInput.Details | null) => void; // Updated type
     calculateTotalCost: () => void;
     resetCheckout: () => void;
 }

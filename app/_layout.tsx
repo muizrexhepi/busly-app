@@ -4,7 +4,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import "../globals.css";
-import { StatusBar, TouchableOpacity } from "react-native";
+import { StatusBar, Text, TouchableOpacity } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { StationsProvider } from "@/contexts/station-provider";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -62,11 +62,19 @@ export default function RootLayout() {
                 headerStyle: {
                   backgroundColor: "#15203e",
                 },
+                headerLargeTitle: true,
+                headerLargeTitleShadowVisible: false,
                 headerTintColor: "white",
                 headerShadowVisible: false,
                 headerLeft: () => (
-                  <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    className="flex-row items-center gap-2"
+                  >
                     <AntDesign name="left" size={24} color={"white"} />
+                    <Text className="text-white font-medium text-lg">
+                      Select trip
+                    </Text>
                   </TouchableOpacity>
                 ),
               }}

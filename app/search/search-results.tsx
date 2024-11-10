@@ -108,7 +108,15 @@ const SearchResults = () => {
         setIsLoadingMore(false);
       }
     },
-    [isSelectingReturn, params]
+    [
+      isSelectingReturn,
+      departureStation,
+      arrivalStation,
+      departureDate,
+      returnDate,
+      adult,
+      children,
+    ]
   );
 
   const handleTicketSelection = useCallback(
@@ -125,25 +133,33 @@ const SearchResults = () => {
         router.push("/checkout");
       } else {
         setOutboundTicket(ticket);
-        setIsLoading(true);
+
         if (tripType === "round-trip" && returnDate) {
           setIsLoading(true);
           setIsSelectingReturn(true);
 
+          // Create return journey parameters
           const returnParams = {
-            departureStation: params.arrivalStation,
-            arrivalStation: params.departureStation,
-            departureDate: params.returnDate,
-            returnDate: params.returnDate,
-            adult: params.adult,
-            children: params.children,
+            departureStation: arrivalStation,
+            arrivalStation: departureStation,
+            departureDate: returnDate,
+            returnDate: returnDate,
+            adult: adult,
+            children: children,
           };
 
+          // Update URL params
           router.setParams(returnParams);
 
+          // Reset the current state
           setTickets([]);
           setCurrentPage(1);
           setHasMoreData(true);
+          setNoData(false);
+
+          // Wait a brief moment for params to update
+          await new Promise((resolve) => setTimeout(resolve, 100));
+
           try {
             const response = await fetch(
               `${environment.apiurl}/ticket/search?` +
@@ -156,7 +172,7 @@ const SearchResults = () => {
             );
 
             if (!response.ok) {
-              throw new Error("Failed to fetch tickets");
+              throw new Error("Failed to fetch return tickets");
             }
 
             const data = await response.json();
@@ -176,20 +192,36 @@ const SearchResults = () => {
             setIsLoading(false);
           }
         } else {
-          setIsLoading(false);
           router.push("/checkout");
         }
       }
+
+      bottomSheetModalRef.current?.dismiss();
     },
-    [isSelectingReturn, tripType, returnDate, params, fetchTickets]
+    [
+      isSelectingReturn,
+      tripType,
+      returnDate,
+      departureStation,
+      arrivalStation,
+      adult,
+      children,
+    ]
   );
 
   useEffect(() => {
     setTickets([]);
     setCurrentPage(1);
     setHasMoreData(true);
+    setNoData(false);
     fetchTickets(1);
-  }, [isSelectingReturn]);
+  }, [
+    isSelectingReturn,
+    departureStation,
+    arrivalStation,
+    departureDate,
+    returnDate,
+  ]);
 
   const handleLoadMore = () => {
     if (!isLoadingMore && hasMoreData && !isLoading) {

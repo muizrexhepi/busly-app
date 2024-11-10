@@ -30,7 +30,8 @@ const PaymentMethod = () => {
             cardStyle={{
               backgroundColor: "#FFFFFF",
               textColor: "#000000",
-              borderColor: "#000",
+              borderRadius: 10,
+              borderColor: "#4b5563",
               borderWidth: 1,
             }}
           />

@@ -19,7 +19,9 @@ export function BookingDetails() {
       {outboundTicket && (
         <TicketSummary ticket={outboundTicket} isReturn={false} />
       )}
+      {returnTicket && <View className="w-full h-px bg-gray-100 my-4" />}
       {returnTicket && <TicketSummary ticket={returnTicket} isReturn={true} />}
+      <View className="w-full h-px bg-gray-100 my-4" />
       <CheckoutPrice />
     </View>
   );

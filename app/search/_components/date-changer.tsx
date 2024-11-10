@@ -101,8 +101,8 @@ export function DateChanger() {
       setReturnDate(formattedDate);
       navigation.setParams({ returnDate: formattedDate });
     } else {
-      console.log("else");
       setDepartureDate(formattedDate);
+      console.log("setting", formattedDate);
       navigation.setParams({ departureDate: formattedDate });
     }
   };

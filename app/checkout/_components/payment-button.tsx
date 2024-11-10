@@ -321,7 +321,7 @@ export const PaymentButton = ({
 
   return (
     <TouchableOpacity
-      className={`py-2 mt-4 ${
+      className={`py-2 mt-4 min-h-16 shrink-0 ${
         loading ? "bg-gray-400" : "bg-primary"
       } flex justify-center items-center h-16 rounded-lg flex-1`}
       disabled={loading}

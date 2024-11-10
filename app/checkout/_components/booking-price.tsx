@@ -25,6 +25,38 @@ const PriceSummaryItem = ({
   </View>
 );
 
+const TicketPriceSection = ({
+  details,
+  type,
+}: {
+  details: any;
+  type: string;
+}) => (
+  <View className="mb-4">
+    <Text className="text-gray-600 mb-2">{type}</Text>
+    <View className="space-y-1">
+      <PriceSummaryItem
+        label="Adults"
+        amount={details.adultPrice}
+        quantity={details.adultCount}
+      />
+      {details.childCount > 0 && (
+        <PriceSummaryItem
+          label="Children"
+          amount={details.childPrice}
+          quantity={details.childCount}
+        />
+      )}
+      <View className="flex-row justify-between items-center pt-1">
+        <Text className="text-gray-600 text-sm">Subtotal</Text>
+        <Text className="font-medium text-base">
+          €{(details.adultTotal + details.childTotal).toFixed(2)}
+        </Text>
+      </View>
+    </View>
+  </View>
+);
+
 export default function CheckoutPrice() {
   const { outboundTicket, returnTicket, selectedFlex, passengers } =
     useCheckoutStore();
@@ -67,31 +99,32 @@ export default function CheckoutPrice() {
 
   return (
     <View className="bg-white pb-8">
-      <Text className="text-xl font-semibold mb-4">Total (incl. VAT)</Text>
+      {/* <Text className="text-xl font-semibold mb-4">Price Summary</Text> */}
 
-      <View className="space-y-2">
-        <PriceSummaryItem
-          label={"Adults"}
-          amount={outboundDetails?.adultPrice!}
-          quantity={outboundDetails?.adultCount}
-        />
-        <PriceSummaryItem
-          label={"Children"}
-          className={`${childrenAmount < 1 && "hidden"}`}
-          amount={outboundDetails?.childPrice!}
-          quantity={outboundDetails?.childCount}
-        />
-        {selectedFlex && selectedFlex !== "no_flex" && (
+      {/* Outbound Ticket Prices */}
+      {outboundDetails && (
+        <TicketPriceSection details={outboundDetails} type="Outbound Journey" />
+      )}
+
+      {/* Return Ticket Prices */}
+      {returnDetails && (
+        <TicketPriceSection details={returnDetails} type="Return Journey" />
+      )}
+
+      {/* Flex Options */}
+      {selectedFlex && selectedFlex !== "no_flex" && (
+        <View className="mb-4 pt-2 border-t border-gray-100">
           <PriceSummaryItem
             label={selectedFlex === "premium" ? "Premium Flex" : "Basic Flex"}
             amount={flexPrice}
           />
-        )}
-      </View>
+        </View>
+      )}
 
+      {/* Total Price */}
       <View className="mt-4 pt-4 border-t border-gray-200">
         <PriceSummaryItem
-          label="Total"
+          label="Total Price (incl. VAT)"
           amount={totalPrice + 0.99}
           className="text-lg font-semibold"
         />
@@ -99,6 +132,7 @@ export default function CheckoutPrice() {
 
       <PaymentButton loading={false} totalPrice={totalPrice} />
 
+      {/* Footer Information */}
       <View className="mt-6 space-y-2">
         <Text className="text-sm text-gray-600">
           Contract partner for transportation services:

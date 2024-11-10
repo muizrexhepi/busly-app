@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import PhoneInput from "react-native-phone-number-input";
 import { X } from "lucide-react-native";
 import useSearchStore, { PassengerData, useCheckoutStore } from "@/store";
+import CustomPhoneInput from "./custom-phone-input";
 
 interface InputFieldProps {
   label: string;
@@ -27,15 +28,17 @@ const InputField: React.FC<InputFieldProps> = ({
   keyboardType = "default",
   secureTextEntry = false,
 }) => (
-  <View className="space-y-1 mb-2">
-    <Text className="font-normal text-base text-black/70">{label}</Text>
+  <View className="space-y-1 mb-2 center h-14 bg-secondary/10 rounded-xl px-4 py-1">
+    <Text className="text-sm text-gray-500">{label}</Text>
+
     <TextInput
       placeholder={placeholder}
       value={value}
       onChangeText={onChangeText}
       keyboardType={keyboardType}
       secureTextEntry={secureTextEntry}
-      className="font-normal rounded-lg border-gray-300 border px-4 h-16 bg-white placeholder:text-gray-600"
+      className="text-black text-base"
+      placeholderTextColor="#6B7280"
     />
   </View>
 );
@@ -179,29 +182,14 @@ const PassengerInfo: React.FC = () => {
                 keyboardType="email-address"
               />
 
-              <View>
-                <Text className="font-normal text-sm text-black/70">
-                  Phone Number
-                </Text>
-                <PhoneInput
-                  defaultValue={passenger.phone}
-                  defaultCode="MK"
-                  onChangeFormattedText={(text) =>
-                    updatePassenger(passengerIndex, "phone", text)
-                  }
-                  containerStyle={{
-                    width: "100%",
-                    borderWidth: 1,
-                    borderColor: "#D1D5DB",
-                    borderRadius: 8,
-                  }}
-                  textContainerStyle={{
-                    backgroundColor: "white",
-                    borderRadius: 8,
-                    paddingLeft: 0,
-                  }}
-                />
-              </View>
+              <CustomPhoneInput
+                label="Phone Number"
+                placeholder="Enter phone number"
+                value={passenger.phone}
+                onChangeText={(text) =>
+                  updatePassenger(passengerIndex, "phone", text)
+                }
+              />
             </>
           )}
 

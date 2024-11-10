@@ -60,3 +60,7 @@ export const PROFILE_LINKS = [
   },
 ];
 
+export enum RECENT_STATIONS {
+  FROM = 'recentFromStations',
+  TO = 'recentToStations'
+}
