@@ -177,6 +177,8 @@ export const PaymentButton = ({
         }
       );
 
+      console.log({ paymentData: res.data.data });
+
       const { clientSecret } = res.data.data;
       console.log("Payment intent created successfully");
 

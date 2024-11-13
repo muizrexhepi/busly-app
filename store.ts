@@ -137,7 +137,8 @@ const initialState: Omit<SearchState,'swapLocations'| 'setFrom' | 'setTo' | 'set
         children: 0,
     },
     departureDate: format(new Date(), "dd-MM-yyyy"),
-    returnDate: format(addDays(new Date(), 7), "dd-MM-yyyy"),
+    // returnDate: format(addDays(new Date(), 7), "dd-MM-yyyy"),
+    returnDate: null,
     tripType: 'one-way', 
 };
 

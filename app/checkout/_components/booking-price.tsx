@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { PaymentButton } from "./payment-button";
 import useSearchStore, { useCheckoutStore } from "@/store";
 import { Ticket } from "@/models/ticket";
+import { openBrowserAsync } from "expo-web-browser";
+import { environment } from "@/environment";
 
 interface PriceSummaryItemProps {
   label: string;
@@ -125,7 +127,7 @@ export default function CheckoutPrice() {
       <View className="mt-4 pt-4 border-t border-gray-200">
         <PriceSummaryItem
           label="Total Price (incl. VAT)"
-          amount={totalPrice + 0.99}
+          amount={totalPrice}
           className="text-lg font-semibold"
         />
       </View>
@@ -140,7 +142,11 @@ export default function CheckoutPrice() {
         <Text className="text-sm text-gray-900">
           FUDEKS d.o.o. (Skopje - Belgrade AS)
         </Text>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() =>
+            openBrowserAsync(`${environment.base_url}/legal/privacy-policy`)
+          }
+        >
           <Text className="text-sm text-blue-600">Privacy Policy</Text>
         </TouchableOpacity>
       </View>

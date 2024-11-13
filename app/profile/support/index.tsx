@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { SUPPORT_LINKS } from "@/constants/data";
+import { openBrowserAsync } from "expo-web-browser";
 
 export default function SettingsPage() {
   return (
@@ -11,7 +12,9 @@ export default function SettingsPage() {
           <TouchableOpacity
             key={index}
             className="flex-row items-center py-4 border-b border-secondary/10"
-            // onPress={() => navigation.navigate(link.route)}
+            onPress={() => {
+              openBrowserAsync(link.url);
+            }}
           >
             <Ionicons name={link.icon} size={24} color="#15203e" />
             <Text className="flex-1 ml-4 text-base text-primary">
