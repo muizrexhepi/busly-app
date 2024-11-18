@@ -15,6 +15,8 @@ import { useCheckoutStore, useDepositStore } from "@/store";
 import { Ticket } from "@/models/ticket";
 import { calculatePassengerPrices } from "@/hooks/use-passengers";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from "expo-notifications";
+import * as TaskManager from 'expo-task-manager';
 
 interface PaymentButtonProps {
   loading: boolean;
@@ -143,6 +145,43 @@ export const PaymentButton = ({
     }
   };
 
+  const BACKGROUND_NOTIFICATION_TASK = 'BACKGROUND-NOTIFICATION-TASK';
+
+  TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, async ({ data, error }: any) => {
+    if (error) {
+      console.error('Background notification task error:', error);
+      return;
+    }
+  
+    console.log('Background notification received:', data);
+  });
+  
+  const scheduleNotification = async () => {
+    try {
+      await Notifications.registerTaskAsync(BACKGROUND_NOTIFICATION_TASK);
+  
+      const trigger = Date.now() + 5 * 60 * 1000;
+  
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Payment Processed",
+          body: "Your payment was successful. Thank you for booking with us!",
+          data: {
+            _contentAvailable: true,
+            paymentProcessed: true,
+          },
+        },
+        trigger
+      });
+  
+      console.log(`Notification scheduled for ${new Date(trigger).toLocaleString()}`);
+    } catch (error) {
+      console.error("Failed to schedule notification:", error);
+      Alert.alert("Notification Error", "Could not schedule confirmation notification");
+    }
+  };
+
+
   const handlePayment = async () => {
     const validationError = validatePayment();
     if (validationError) {
@@ -201,6 +240,7 @@ export const PaymentButton = ({
         console.log("Bookings created successfully");
         resetCheckout();
         router.push("/checkout/success");
+        await scheduleNotification();
       } else {
         console.error("Unexpected payment status:", paymentIntent?.status);
         throw new Error(`Unexpected payment status: ${paymentIntent?.status}`);

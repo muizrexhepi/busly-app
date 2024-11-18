@@ -14,7 +14,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.busly.gobusly"
+      "bundleIdentifier": "com.busly.gobusly",
+      "infoPlist": {
+        "UIBackgroundModes": ["remote-notification"]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -35,7 +38,17 @@
         {
           "enableGooglePay": true
         }
-      ]
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./buspng.png",
+          "color": "#ffffff",
+          "sounds": ["./sound.wav"],
+          "enableBackgroundRemoteNotifications": true
+        }
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true

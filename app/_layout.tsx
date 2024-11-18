@@ -10,6 +10,7 @@ import { StationsProvider } from "@/contexts/station-provider";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StripeProvider } from "@stripe/stripe-react-native";
 import SearchHeader from "./search/_components/search-header";
+import { NavigationContainer } from "@react-navigation/native";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -35,6 +36,8 @@ export default function RootLayout() {
       publishableKey="pk_test_51K1DdaDAZApOs2EVXCiMmQnlAa9TIqCpnuhrDrpiKqdTGuGlNvbbyYnaEPgl2m0Qg2WfBC6r6j2wfP2jLdDwPdnm00D2bcqz6v"
     >
       <StationsProvider>
+        <NavigationContainer>
+
         <GestureHandlerRootView style={{ flex: 1 }}>
           <StatusBar barStyle="light-content" backgroundColor="#fffffe" />
           <Stack>
@@ -233,6 +236,8 @@ export default function RootLayout() {
             />
           </Stack>
         </GestureHandlerRootView>
+        </NavigationContainer>
+
       </StationsProvider>
     </StripeProvider>
   );
