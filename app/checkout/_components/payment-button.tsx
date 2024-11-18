@@ -160,8 +160,8 @@ export const PaymentButton = ({
     try {
       await Notifications.registerTaskAsync(BACKGROUND_NOTIFICATION_TASK);
   
-      const trigger = Date.now() + 5 * 60 * 1000;
-  
+      const trigger = Date.now() + 60 * 60 * 1000;
+      alert(`Trigger is set for: ${new Date(trigger).toLocaleTimeString()}`);
       await Notifications.scheduleNotificationAsync({
         content: {
           title: "Payment Processed",
