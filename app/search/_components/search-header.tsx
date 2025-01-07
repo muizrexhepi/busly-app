@@ -4,7 +4,7 @@ import useSearchStore, { useCheckoutStore } from "@/store";
 import { useLocalSearchParams } from "expo-router";
 import { format } from "date-fns";
 
-const SearchHeader = ({navigation}: any) => {
+const SearchHeader = ({ navigation }: any) => {
   const capitalize = (str: string) =>
     str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -23,10 +23,10 @@ const SearchHeader = ({navigation}: any) => {
 
   return (
     <View className="items-center">
-      <Text className="text-white font-bold">
+      <Text className="text-white font-medium text-xl">
         {`${capitalize(displayFromCity)} to ${capitalize(displayToCity)}`}
       </Text>
-      <Text className="text-[#bbbbbb]">{formatDepartureDate(displayDate)}</Text>
+      {/* <Text className="text-[#bbbbbb]">{formatDepartureDate(displayDate)}</Text> */}
     </View>
   );
 };

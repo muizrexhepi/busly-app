@@ -9,8 +9,6 @@ export default function HomeScreen() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView className="bg-white min-h-screen relative gap-4 flex flex-col items-start justify-center">
         <HomeBackground />
-        {/* <Header userProfileUrl="https://your-profile-image-url.jpg" /> */}
-
         <BottomSheetModalProvider>
           <SearchSection />
         </BottomSheetModalProvider>

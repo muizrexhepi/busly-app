@@ -64,6 +64,7 @@ const DateSelect = ({ parseDate }: { parseDate: any }) => {
 
       <BottomSheetModal
         ref={bottomSheetModalRef}
+        index={1}
         snapPoints={["70%"]}
         enablePanDownToClose
         enableDismissOnClose

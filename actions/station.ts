@@ -1,6 +1,5 @@
 
 import { environment } from "@/environment";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const getStationsByOperatorId = async (operator_id: string) => {
   try {
@@ -18,7 +17,7 @@ export const getStationsByOperatorId = async (operator_id: string) => {
 
 export const getStations = async () => {
   try {
-    const res = await fetch(`${environment.apiurl}/station?select=name city country location`);
+    const res = await fetch(`${environment.apiurl}/station/all?select=name city country location`);
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }

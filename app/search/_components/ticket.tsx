@@ -26,7 +26,7 @@ const TicketBlock: React.FC<TicketBlockProps> = ({
   } = useCheckoutStore();
   const { tripType } = useSearchStore();
 
-  const departureDate = moment.utc(ticket.departure_date);
+  const departureDate = moment.utc(ticket.stops[0].departure_date);
   const arrivalTime = moment.utc(
     ticket.stops[ticket.stops.length - 1].arrival_time
   );

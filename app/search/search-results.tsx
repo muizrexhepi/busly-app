@@ -37,13 +37,12 @@ const SearchResults = () => {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const {
-    departureStation,
-    arrivalStation,
+    from: departureStation,
+    to: arrivalStation,
     departureDate,
     returnDate,
-    adult,
-    children,
-  } = params;
+    passengers,
+  } = useSearchStore();
 
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const { isLoading, setIsLoading } = useLoadingStore();
@@ -76,11 +75,10 @@ const SearchResults = () => {
             `departureStation=${currentDepartureStation}&` +
             `arrivalStation=${currentArrivalStation}&` +
             `departureDate=${currentDate}&` +
-            `adults=${adult}&` +
-            `children=${children}&` +
+            `adults=${passengers.adults}&` +
+            `children=${passengers.children}&` +
             `page=${page}`
         );
-
         if (!response.ok) {
           throw new Error("Failed to fetch tickets");
         }
@@ -114,8 +112,7 @@ const SearchResults = () => {
       arrivalStation,
       departureDate,
       returnDate,
-      adult,
-      children,
+      passengers,
     ]
   );
 
@@ -138,26 +135,22 @@ const SearchResults = () => {
           setIsLoading(true);
           setIsSelectingReturn(true);
 
-          // Create return journey parameters
           const returnParams = {
             departureStation: arrivalStation,
             arrivalStation: departureStation,
             departureDate: returnDate,
             returnDate: returnDate,
-            adult: adult,
-            children: children,
+            adult: passengers.adults,
+            children: passengers.children,
           };
 
-          // Update URL params
           router.setParams(returnParams);
 
-          // Reset the current state
           setTickets([]);
           setCurrentPage(1);
           setHasMoreData(true);
           setNoData(false);
 
-          // Wait a brief moment for params to update
           await new Promise((resolve) => setTimeout(resolve, 100));
 
           try {
@@ -204,8 +197,7 @@ const SearchResults = () => {
       returnDate,
       departureStation,
       arrivalStation,
-      adult,
-      children,
+      passengers,
     ]
   );
 
@@ -307,6 +299,7 @@ const SearchResults = () => {
       <BottomSheetModalProvider>
         <BottomSheetModal
           ref={bottomSheetModalRef}
+          index={1}
           snapPoints={["75%"]}
           enableDismissOnClose
         >

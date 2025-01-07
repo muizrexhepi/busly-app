@@ -29,7 +29,7 @@ export const SETTINGS_LINKS = [
 ];
 
 export const SUPPORT_LINKS = [
-  { title: "FAQs", icon: "help-circle-outline" as keyof typeof Ionicons.glyphMap,url:`${environment.base_url}/help` },
+       { title: "FAQs", icon: "help-circle-outline" as keyof typeof Ionicons.glyphMap,url:`${environment.base_url}/help` },
       { title: "Contact Us", icon: "mail-outline" as keyof typeof Ionicons.glyphMap,url:`${environment.base_url}/help/contact-support` },
       { title: "Report an Issue", icon: "warning-outline" as keyof typeof Ionicons.glyphMap,url:`${environment.base_url}/help/report-an-issue` },
 ]
@@ -38,18 +38,13 @@ export const PROFILE_LINKS = [
   {
     title: "Personal Information",
     icon: "person-outline" as keyof typeof Ionicons.glyphMap,
-    route: "/profile/personal-info",
+    route: "/profile/personal-information",
   },
   {
     title: "Payment Methods",
     icon: "card-outline" as keyof typeof Ionicons.glyphMap,
     route: "/profile/payment-methods",
   },
-  // {
-  //   title: "Travel Preferences",
-  //   icon: "airplane-outline" as keyof typeof Ionicons.glyphMap,
-  //   route: "/profile/travel-preferences",
-  // },
   {
     title: "Notifications",
     icon: "notifications-outline" as keyof typeof Ionicons.glyphMap,

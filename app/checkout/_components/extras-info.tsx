@@ -51,7 +51,7 @@ const TravelFlex = () => {
           className={cn(
             "rounded-xl border p-4",
             selectedFlex === flex.value
-              ? "border-primary bg-secondary/20"
+              ? "border-primary/80 bg-secondary/10"
               : "border-gray-300"
           )}
           onPress={() => handleFlexSelection(flex)}

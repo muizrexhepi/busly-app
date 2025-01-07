@@ -12,6 +12,7 @@ module.exports = {
       colors:{
         'primary':'#15203e',
         'secondary':'#55aac4',
+        'accent':'#ff6700',
       }
     },
   },

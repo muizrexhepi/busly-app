@@ -65,7 +65,7 @@ export const SearchSection = () => {
   const passengerDescription = formatPassengers();
 
   return (
-    <View className="rounded-2xl border-neutral-700/10 border-t px-4 py-6 flex flex-col gap-3 w-full bg-white">
+    <View className="rounded-2xl border-neutral-700/10 border-t px-4 py-4 flex flex-col gap-3 w-full bg-white">
       <View className="flex gap-2">
         <Pressable
           className="flex-row items-center h-16 bg-secondary/10 rounded-xl px-4"

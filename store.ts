@@ -4,6 +4,8 @@ import { addDays, format } from 'date-fns';
 import { createJSONStorage, persist, PersistOptions } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CardFieldInput, CardFormView } from '@stripe/stripe-react-native';
+import * as SecureStore from 'expo-secure-store';
+import axios from 'axios';
 
 export interface PassengerData {
     full_name: string;
@@ -77,7 +79,14 @@ export const useCheckoutStore = create<CheckoutState>()(
             setPassengers: (passengers) => set({ passengers }),
             setSelectedFlex: (flex) => set({ selectedFlex: flex }),
             setFlexPrice: (price) => set({ flexPrice: price }),
-            setCardDetails: (details) => set({ cardDetails: details }),
+            setCardDetails: (details) => {
+                if (details?.complete) {
+                  set({ cardDetails: details });
+                } else {
+                  set({ cardDetails: null }); // Reset if card is incomplete or invalid
+                }
+              }
+,              
 
             calculateTotalCost: () => {
                 const { passengers, flexPrice } = get();
@@ -190,40 +199,6 @@ export const useLoadingStore = create<ILoading>((set) => ({
     setIsLoading: (isLoading) => set({ isLoading }),
 }));
 
-interface INavbarMenu {
-    openLogin: boolean;
-    setOpenLogin: (openLogin: boolean) => void;
-    openRegister: boolean;
-    setOpenRegister: (openRegister: boolean) => void;
-    openLanguages: boolean;
-    setOpenLanguages: (openLanguages: boolean) => void;
-    openReset: boolean;
-    setOpenReset: (openReset: boolean) => void;
-}
 
-export const useNavbarStore = create<INavbarMenu>((set) => ({
-    openLogin: false,
-    setOpenLogin: (openLogin) => set({ openLogin }),
-    openRegister: false,
-    setOpenRegister: (openRegister) => set({ openRegister }),
-    openLanguages: false,
-    setOpenLanguages: (openLanguages) => set({ openLanguages }),
-    openReset: false,
-    setOpenReset: (openReset: boolean) => set({ openReset }),
-}));
-
-interface DepositStore {
-    useDeposit: boolean;
-    depositAmount: number;
-    setUseDeposit: (useDeposit: boolean) => void;
-    setDepositAmount: (depositAmount: number) => void;
-}
-
-export const useDepositStore = create<DepositStore>((set) => ({
-    useDeposit: false,
-    depositAmount: 0,
-    setUseDeposit: (useDeposit) => set({ useDeposit }),
-    setDepositAmount: (depositAmount) => set({ depositAmount }),
-}));
 
 export default useSearchStore;

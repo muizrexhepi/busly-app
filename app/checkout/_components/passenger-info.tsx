@@ -52,7 +52,7 @@ function InputField({
         onFocus={() => setIsFocused(true)}
         keyboardType={keyboardType}
         secureTextEntry={secureTextEntry}
-        className={`flex-row items-center h-14 bg-secondary/10 border rounded-xl px-4 text-black text-base
+        className={`border border-primary rounded-lg p-3 h-14 bg-secondary/10 placeholder:text-black/60
                     ${
                       isFocused
                         ? "border-[#55aac4]"

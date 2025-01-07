@@ -10,7 +10,6 @@ import { StationsProvider } from "@/contexts/station-provider";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StripeProvider } from "@stripe/stripe-react-native";
 import SearchHeader from "./search/_components/search-header";
-import { NavigationContainer } from "@react-navigation/native";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -33,11 +32,9 @@ export default function RootLayout() {
   return (
     <StripeProvider
       merchantIdentifier="merchant.identifier"
-      publishableKey="pk_test_51K1DdaDAZApOs2EVXCiMmQnlAa9TIqCpnuhrDrpiKqdTGuGlNvbbyYnaEPgl2m0Qg2WfBC6r6j2wfP2jLdDwPdnm00D2bcqz6v"
+      publishableKey="pk_test_51QQXt1EOf85LOQH5JbGWAzCrbipG9QGLZa8Go8rQLGmMQUczF1DsFAVdTlcdfSLfUhCkDtdTNNbeQ9GiIpGZtnm900a2iR3eyY"
     >
       <StationsProvider>
-        <NavigationContainer>
-
         <GestureHandlerRootView style={{ flex: 1 }}>
           <StatusBar barStyle="light-content" backgroundColor="#fffffe" />
           <Stack>
@@ -166,7 +163,7 @@ export default function RootLayout() {
               name="checkout/success/index"
               options={({ navigation }) => ({
                 headerShown: false,
-                gestureEnabled: false, // This disables the swipe-back gesture
+                gestureEnabled: false,
                 headerLeft: () => (
                   <TouchableOpacity onPress={() => navigation.goBack()}>
                     <AntDesign name="left" size={24} color="white" />
@@ -198,10 +195,22 @@ export default function RootLayout() {
               name="(modal)/sign-in"
               options={{
                 headerTitle: "",
-                presentation: "modal",
+                // presentation: "modal",
                 headerLeft: () => (
                   <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <AntDesign name="close" size={24} color={"#000"} />
+                    <AntDesign name="left" size={24} color={"#000"} />
+                  </TouchableOpacity>
+                ),
+              }}
+            />
+            <Stack.Screen
+              name="(modal)/sign-up"
+              options={{
+                headerTitle: "",
+                // presentation: "modal",
+                headerLeft: () => (
+                  <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <AntDesign name="left" size={24} color={"#000"} />
                   </TouchableOpacity>
                 ),
               }}
@@ -214,6 +223,22 @@ export default function RootLayout() {
                 headerLeft: () => (
                   <TouchableOpacity onPress={() => navigation.goBack()}>
                     <AntDesign name="close" size={24} color={"#000"} />
+                  </TouchableOpacity>
+                ),
+              }}
+            />
+            <Stack.Screen
+              name="profile/personal-information/index"
+              options={{
+                title: "Personal Information",
+                headerStyle: {
+                  backgroundColor: "#15203e",
+                },
+                headerTintColor: "white",
+                headerShadowVisible: false,
+                headerLeft: () => (
+                  <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <AntDesign name="left" size={24} color={"white"} />
                   </TouchableOpacity>
                 ),
               }}
@@ -236,8 +261,6 @@ export default function RootLayout() {
             />
           </Stack>
         </GestureHandlerRootView>
-        </NavigationContainer>
-
       </StationsProvider>
     </StripeProvider>
   );

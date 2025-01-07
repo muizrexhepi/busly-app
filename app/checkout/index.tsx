@@ -1,6 +1,6 @@
 import React from "react";
 import PassengerInfo from "./_components/passenger-info";
-import { ScrollView, View } from "react-native";
+import { ScrollView } from "react-native";
 import { BookingDetails } from "./_components/booking-details";
 import Extras from "./_components/extras-info";
 import PaymentMethod from "./_components/payment-method";

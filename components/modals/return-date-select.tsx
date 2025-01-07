@@ -87,6 +87,7 @@ const ReturnDateSelect: React.FC<DateSelectProps> = ({ parseDate }) => {
       <BottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={["70%"]}
+        index={1}
         enablePanDownToClose
         enableDismissOnClose
       >

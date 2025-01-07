@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   TextInput,
   FlatList,
@@ -10,11 +10,11 @@ import {
 import DismissKeyboard from "@/components/dismiss-keyboard";
 import { AntDesign, FontAwesome6 } from "@expo/vector-icons";
 import { useStations } from "@/contexts/station-provider";
-import { useNavigation } from "@react-navigation/native";
 import useSearchStore from "@/store";
 import { Station } from "@/models/station";
 import { RECENT_STATIONS } from "@/constants/data";
 import useRecentStations from "@/hooks/use-recent-stations";
+import { useNavigation } from "expo-router";
 
 const FromStationSelect = () => {
   const navigation = useNavigation();

@@ -1,19 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { format, addDays, subDays, parse, isValid } from "date-fns";
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import useSearchStore, { useCheckoutStore, useLoadingStore } from "@/store";
 import { cn } from "@/lib/utils";
-
-type RootStackParamList = {
-  Search: { departureDate?: string; returnDate?: string };
-};
-
-type SearchScreenNavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  "Search"
->;
+import { useNavigation } from "expo-router";
 
 interface DateButtonProps {
   date: Date;
@@ -52,7 +42,7 @@ const DateButton: React.FC<DateButtonProps> = ({
 );
 
 export function DateChanger() {
-  const navigation = useNavigation<SearchScreenNavigationProp>();
+  const navigation = useNavigation();
   const {
     departureDate,
     setDepartureDate,
@@ -99,11 +89,10 @@ export function DateChanger() {
 
     if (tripType === "round-trip" && outboundTicket) {
       setReturnDate(formattedDate);
-      navigation.setParams({ returnDate: formattedDate });
+      // navigation.setParams({ returnDate: formattedDate });
     } else {
       setDepartureDate(formattedDate);
-      console.log("setting", formattedDate);
-      navigation.setParams({ departureDate: formattedDate });
+      // navigation.setParams({ departureDate: formattedDate });
     }
   };
 
@@ -114,7 +103,7 @@ export function DateChanger() {
           isLoading ? (
             <View
               key={date.toISOString()}
-              className="flex-1 h-9 flex-grow bg-gray-100 rounded-full flex justify-center items-center mx-1"
+              className="flex-1 h-9 flex-grow bg-gray-100 rounded-full flex justify-center items-center"
             >
               <View className="h-3.5 w-20 bg-gray-300 rounded" />
             </View>

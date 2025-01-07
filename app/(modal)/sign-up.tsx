@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -12,53 +12,37 @@ import {
   Platform,
   Keyboard,
 } from "react-native";
+import { openBrowserAsync } from "expo-web-browser";
+import { environment } from "@/environment";
 import { useRouter } from "expo-router";
 import { SocialButtons } from "@/components/social-buttons";
 import { z } from "zod";
-import { openBrowserAsync } from "expo-web-browser";
-import { environment } from "@/environment";
-import { login } from "@/actions/auth";
+import { registerSchema } from "@/schemas";
+import { register } from "@/actions/auth";
 import { Eye, EyeOff } from "lucide-react-native";
-import { loginSchema } from "@/schemas";
-// import { account, appwriteLogin } from "@/lib/appwrite";
 
-export default function SignInView() {
+export default function SignUpView() {
   const router = useRouter();
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(false);
 
-  // const handleSignIn = async () => {
-  //   try {
-  //     // Validate data using the schema
-  //     const validatedData = loginSchema.parse({
-  //       email,
-  //       password,
-  //     });
-
-  //     // Call login function
-  //     await appwriteLogin(validatedData.email, validatedData.password);
-
-  //     // Fetch the current session to confirm login success
-  //     const session = await account.get();
-  //     console.log("Login successful:", session);
-  //   } catch (error: any) {
-  //     // Handle error (e.g., invalid credentials)
-  //     console.error("Login failed:", error.message || error);
-  //   }
-  // };
-
-  const handleSignIn = async () => {
+  const handleSignUp = async () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      const validatedData = loginSchema.parse({
+      const validatedData = registerSchema.parse({
+        fullName,
         email,
         password,
+        confirmPassword,
       });
       setErrors({});
 
-      const response = await login({
+      const response = await register({
+        fullName: validatedData.fullName,
         email: validatedData.email,
         password: validatedData.password,
       });
@@ -69,8 +53,7 @@ export default function SignInView() {
         setErrors({ form: response.error || "Registration failed" });
       }
     } catch (error) {
-      console.error("Signin Error:", error);
-
+      console.error("Signup Error:", error);
       if (error instanceof z.ZodError) {
         const newErrors: { [key: string]: string } = {};
         error.errors.forEach((err) => {
@@ -81,7 +64,7 @@ export default function SignInView() {
         setErrors(newErrors);
       } else {
         setErrors({
-          form: "Sign in failed. Please check your credentials and try again.",
+          form: "Something went wrong. Please try again later.",
         });
       }
     } finally {
@@ -91,7 +74,7 @@ export default function SignInView() {
 
   const isFormValid = () => {
     try {
-      loginSchema.parse({ email, password });
+      registerSchema.parse({ fullName, email, password, confirmPassword });
       return true;
     } catch {
       return false;
@@ -108,7 +91,7 @@ export default function SignInView() {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView className="flex-1 px-6 py-8">
             <Text className="text-3xl font-bold text-primary mb-8">
-              Sign In
+              Sign Up
             </Text>
 
             {errors.form && (
@@ -116,6 +99,27 @@ export default function SignInView() {
                 {errors.form}
               </Text>
             )}
+
+            <View className="mb-4">
+              <Text className="text-sm font-semibold text-gray-700 mb-2">
+                Full Name
+              </Text>
+              <TextInput
+                className={`rounded-lg p-3 h-14 bg-gray-100 placeholder:text-black/60 ${
+                  errors.fullName ? "border border-red-500" : ""
+                }`}
+                placeholder="Enter your full name"
+                value={fullName}
+                onChangeText={setFullName}
+                placeholderTextColor="#6B7280"
+                editable={!isLoading}
+              />
+              {errors.fullName && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errors.fullName}
+                </Text>
+              )}
+            </View>
 
             <View className="mb-4">
               <Text className="text-sm font-semibold text-gray-700 mb-2">
@@ -132,7 +136,6 @@ export default function SignInView() {
                 placeholderTextColor="#6B7280"
                 editable={!isLoading}
                 autoCapitalize="none"
-                returnKeyType="next"
               />
               {errors.email && (
                 <Text className="text-red-500 text-sm mt-1">
@@ -145,32 +148,32 @@ export default function SignInView() {
               label="Password"
               value={password}
               onChangeText={setPassword}
-              placeholder="Enter your password"
+              placeholder="Create a password"
               error={errors.password}
               editable={!isLoading}
-              returnKeyType="done"
-              onSubmitEditing={isFormValid() ? handleSignIn : undefined}
+              returnKeyType="next"
             />
 
+            <PasswordInput
+              label="Confirm Password"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholder="Confirm your password"
+              error={errors.confirmPassword}
+              editable={!isLoading}
+              returnKeyType="done"
+              onSubmitEditing={isFormValid() ? handleSignUp : undefined}
+            />
             <TouchableOpacity
-              // onPress={() => router.push("/(modal)/forgot-password")}
-              className="mb-6"
-            >
-              <Text className="text-right text-secondary text-sm">
-                Forgot Password?
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              className={`rounded-lg p-4 h-14 bg-primary`}
-              onPress={handleSignIn}
+              className={`rounded-lg p-3 h-14 bg-primary`}
+              onPress={handleSignUp}
               disabled={isLoading}
             >
               {isLoading ? (
                 <ActivityIndicator color="white" />
               ) : (
                 <Text className="text-center text-white font-semibold text-base">
-                  Sign In
+                  Sign Up
                 </Text>
               )}
             </TouchableOpacity>
@@ -183,19 +186,8 @@ export default function SignInView() {
             </View>
             <SocialButtons />
 
-            <TouchableOpacity
-              className="mt-4"
-              onPress={() => router.push("/(modal)/sign-up")}
-              disabled={isLoading}
-            >
-              <Text className="text-center text-base text-primary">
-                Don't have an account?{" "}
-                <Text className="font-semibold">Sign Up</Text>
-              </Text>
-            </TouchableOpacity>
-
             <Text className="text-center text-sm text-gray-600 mt-8">
-              By continuing, you agree to our{" "}
+              By signing up, you agree to our{" "}
               <Text
                 className="text-secondary underline"
                 onPress={() => {
@@ -219,6 +211,17 @@ export default function SignInView() {
               </Text>
               .
             </Text>
+
+            <TouchableOpacity
+              className="mt-6"
+              onPress={() => router.navigate("/(modal)/sign-in")}
+              disabled={isLoading}
+            >
+              <Text className="text-center text-base text-primary">
+                Already have an account?{" "}
+                <Text className="font-semibold">Sign In</Text>
+              </Text>
+            </TouchableOpacity>
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
@@ -226,7 +229,7 @@ export default function SignInView() {
   );
 }
 
-const PasswordInput = ({
+export const PasswordInput = ({
   label,
   value,
   onChangeText,

@@ -11,12 +11,12 @@ import { useRouter } from "expo-router";
 import { useStripe } from "@stripe/stripe-react-native";
 import axios from "axios";
 import { environment } from "@/environment";
-import { useCheckoutStore, useDepositStore } from "@/store";
+import { useCheckoutStore } from "@/store";
 import { Ticket } from "@/models/ticket";
 import { calculatePassengerPrices } from "@/hooks/use-passengers";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
-import * as TaskManager from 'expo-task-manager';
+import * as TaskManager from "expo-task-manager";
 
 interface PaymentButtonProps {
   loading: boolean;
@@ -33,8 +33,6 @@ export const PaymentButton = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const platform = Platform.OS.toLowerCase();
   const loading = externalLoading || internalLoading || isProcessing;
-
-  const { useDeposit, depositAmount } = useDepositStore();
 
   const {
     passengers,
@@ -92,9 +90,7 @@ export const PaymentButton = ({
   const operatorTotalPrice = operatorOutboundTotal + operatorReturnTotal;
   const totalPriceWithFlex = outboundTotal + returnTotal + flexPrice;
 
-  const finalPrice = useDeposit
-    ? Math.max(totalPriceWithFlex - depositAmount, 0)
-    : totalPriceWithFlex;
+  const finalPrice = totalPriceWithFlex;
 
   const validatePayment = () => {
     if (!stripe) {
@@ -115,51 +111,29 @@ export const PaymentButton = ({
         timestamp: new Date().toISOString(),
         ...data,
       });
-      // You could also send this to your analytics service
     } catch (error) {
       console.error("Failed to log payment attempt:", error);
     }
   };
 
-  const handleFullDepositPayment = async () => {
-    setIsProcessing(true);
-    try {
-      await logPaymentAttempt({
-        type: "full_deposit",
-        amount: totalPrice,
-        depositAmount,
-      });
+  const BACKGROUND_NOTIFICATION_TASK = "BACKGROUND-NOTIFICATION-TASK";
 
-      await createBookings("full_deposit_payment");
-      resetCheckout();
-      router.push("/checkout/success");
-    } catch (error: any) {
-      console.error("Full deposit payment error:", error);
-      Alert.alert(
-        "Payment Error",
-        error.response?.data?.message ||
-          "An error occurred during payment with deposit."
-      );
-    } finally {
-      setIsProcessing(false);
+  TaskManager.defineTask(
+    BACKGROUND_NOTIFICATION_TASK,
+    async ({ data, error }: any) => {
+      if (error) {
+        console.error("Background notification task error:", error);
+        return;
+      }
+
+      console.log("Background notification received:", data);
     }
-  };
+  );
 
-  const BACKGROUND_NOTIFICATION_TASK = 'BACKGROUND-NOTIFICATION-TASK';
-
-  TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, async ({ data, error }: any) => {
-    if (error) {
-      console.error('Background notification task error:', error);
-      return;
-    }
-  
-    console.log('Background notification received:', data);
-  });
-  
   const scheduleNotification = async () => {
     try {
       await Notifications.registerTaskAsync(BACKGROUND_NOTIFICATION_TASK);
-  
+
       const trigger = Date.now() + 60 * 60 * 1000;
       alert(`Trigger is set for: ${new Date(trigger).toLocaleTimeString()}`);
       await Notifications.scheduleNotificationAsync({
@@ -171,16 +145,20 @@ export const PaymentButton = ({
             paymentProcessed: true,
           },
         },
-        trigger
+        trigger,
       });
-  
-      console.log(`Notification scheduled for ${new Date(trigger).toLocaleString()}`);
+
+      console.log(
+        `Notification scheduled for ${new Date(trigger).toLocaleString()}`
+      );
     } catch (error) {
       console.error("Failed to schedule notification:", error);
-      Alert.alert("Notification Error", "Could not schedule confirmation notification");
+      Alert.alert(
+        "Notification Error",
+        "Could not schedule confirmation notification"
+      );
     }
   };
-
 
   const handlePayment = async () => {
     const validationError = validatePayment();
@@ -197,7 +175,7 @@ export const PaymentButton = ({
       await logPaymentAttempt({
         type: "card_payment",
         amount: finalPrice,
-        depositAmount: useDeposit ? depositAmount : 0,
+        depositAmount: 0,
       });
       console.log("Payment attempt logged successfully");
       console.log({ finalPrice, totalPrice });
@@ -326,8 +304,8 @@ export const PaymentButton = ({
           arrival_station,
           departure_station_label,
           arrival_station_label,
-          is_using_deposited_money: useDeposit,
-          deposit_spent: isReturn ? 0 : depositAmount * 100 || 0,
+          is_using_deposited_money: false,
+          deposit_spent: 0,
           stop: ticket.stops[0],
           is_return: isReturn,
         }
@@ -367,9 +345,7 @@ export const PaymentButton = ({
         loading ? "bg-gray-400" : "bg-primary"
       } flex justify-center items-center h-16 rounded-lg flex-1`}
       disabled={loading}
-      onPress={
-        totalPrice <= depositAmount ? handleFullDepositPayment : handlePayment
-      }
+      onPress={handlePayment}
     >
       {loading ? (
         <View className="flex-row items-center space-x-2">

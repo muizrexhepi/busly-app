@@ -83,9 +83,10 @@ const PassengerSelect = ({
       <BottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={["50%"]}
+        index={1}
         enableDismissOnClose
       >
-        <BottomSheetView className="flex-1 px-4 h-full bg-white">
+        <BottomSheetView className="flex-1 px-4 h-full bg-white ">
           {/* Header */}
           <View className="mb-4">
             <Text className="text-xl font-semibold">Select Passengers</Text>
