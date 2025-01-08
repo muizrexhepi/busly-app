@@ -6,6 +6,7 @@ import useSearchStore, { useCheckoutStore } from "@/store";
 import DateSelector from "@/components/date-select-block";
 import PassengerSelect from "@/components/modals/passengers-select";
 import { SecondaryButton } from "@/components/secondary-button";
+import { BackgroundGradient } from "@/components/linear-gradient";
 
 export const SearchSection = () => {
   const {
@@ -65,10 +66,10 @@ export const SearchSection = () => {
   const passengerDescription = formatPassengers();
 
   return (
-    <View className="rounded-2xl border-neutral-700/10 border-t px-4 py-4 flex flex-col gap-3 w-full bg-white">
+    <View className="rounded-2xl border-neutral-700/10 border-t px-4 py-4 flex flex-col gap-2 w-full bg-white">
       <View className="flex gap-2">
         <Pressable
-          className="flex-row items-center h-16 bg-secondary/10 rounded-xl px-4"
+          className="flex-row items-center h-16 bg-gray-100 rounded-xl px-4"
           onPress={() => router.push("/(modal)/from-select")}
           accessibilityRole="button"
           accessibilityLabel="Select departure location"
@@ -85,7 +86,7 @@ export const SearchSection = () => {
         </Pressable>
 
         <Pressable
-          className="flex-row items-center h-16 bg-secondary/10 rounded-xl px-4"
+          className="flex-row items-center h-16 bg-gray-100 rounded-xl px-4"
           onPress={() => router.push("/(modal)/to-select")}
           accessibilityRole="button"
           accessibilityLabel="Select arrival location"
@@ -110,15 +111,16 @@ export const SearchSection = () => {
 
         <PassengerSelect passengerDescription={passengerDescription} />
       </View>
-
-      <SecondaryButton
-        className="h-16 bg-primary items-center flex flex-row justify-center"
-        onPress={handleSearch}
-      >
-        <Text className="text-white text-center font-semibold text-lg">
-          Search
-        </Text>
-      </SecondaryButton>
+      <BackgroundGradient>
+        <SecondaryButton
+          className="h-16 bg-transparent items-center flex flex-row justify-center"
+          onPress={handleSearch}
+        >
+          <Text className="text-white text-center font-semibold text-lg">
+            Search
+          </Text>
+        </SecondaryButton>
+      </BackgroundGradient>
     </View>
   );
 };

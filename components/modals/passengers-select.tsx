@@ -63,7 +63,7 @@ const PassengerSelect = ({
   return (
     <>
       <Pressable
-        className="flex-row items-center h-16 bg-secondary/10 rounded-xl px-4"
+        className="flex-row items-center h-16 bg-gray-100 rounded-xl px-4"
         accessibilityRole="button"
         accessibilityLabel="Select number of passengers"
         onPress={handlePresentModalPress}

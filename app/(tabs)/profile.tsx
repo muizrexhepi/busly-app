@@ -12,6 +12,7 @@ import { router } from "expo-router";
 import { PROFILE_LINKS } from "@/constants/data";
 import { logout } from "@/actions/auth";
 import useUser from "@/hooks/use-user";
+import { BackgroundGradient } from "@/components/linear-gradient";
 
 const LoggedInUserView = ({ user }: any) => (
   <View className="w-full bg-primary p-4 pt-20">
@@ -95,12 +96,16 @@ export default function ProfileTab() {
         </View>
 
         {!user ? (
-          <TouchableOpacity
-            className="mx-4 mt-6 bg-primary rounded-lg p-4 items-center"
-            onPress={() => router.push("/(modal)/sign-in")}
-          >
-            <Text className="text-lg font-bold text-white">Sign In</Text>
-          </TouchableOpacity>
+          <View className="m-4">
+            <BackgroundGradient>
+              <TouchableOpacity
+                className="bg-transparent rounded-lg p-4 items-center"
+                onPress={() => router.push("/(modal)/sign-in")}
+              >
+                <Text className="text-lg font-bold text-white">Sign In</Text>
+              </TouchableOpacity>
+            </BackgroundGradient>
+          </View>
         ) : (
           <TouchableOpacity
             className="flex-row mx-4 items-center py-4 border-b border-secondary/10"

@@ -1,17 +1,11 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  FlatList,
-  Button,
-} from "react-native";
+import { View, Text, TouchableOpacity, FlatList } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Booking } from "@/models/booking";
 import moment from "moment-timezone";
+import { BackgroundGradient } from "@/components/linear-gradient";
 
 const formatDate = (date: any) => {
   return new Date(date).toLocaleDateString("en-US", {
@@ -96,7 +90,8 @@ export default function MyBookingsTab() {
   }, []);
 
   return (
-    <View className="flex-1 bg-secondary/10">
+    <View className="flex-1 bg-gray-50">
+      *{" "}
       <View className="w-full bg-primary p-6 pt-20">
         <Text className="text-2xl text-white font-bold mb-2">My Bookings</Text>
         <Text className="text-base text-white/90">
@@ -109,16 +104,36 @@ export default function MyBookingsTab() {
         keyExtractor={(item) => item._id}
         contentContainerClassName="p-4"
         ListEmptyComponent={
-          <View className="items-center justify-center py-8">
-            <Ionicons name="bus-outline" size={48} color="#15203e" />
-            <Text className="mt-4 text-lg text-primary text-center">
-              You don't have any bookings yet.
+          <View className="items-center justify-center py-12 px-4">
+            {/* <Image
+              source={require('../assets/empty-bookings.png')} // Make sure to add this image
+              className="w-48 h-48 mb-6"
+              resizeMode="contain"
+            /> */}
+            <Text className="text-2xl font-semibold text-gray-800 text-center mb-2">
+              No Bookings Yet
             </Text>
+            <Text className="text-base text-gray-600 text-center mb-8">
+              Your booked trips will appear here. Start your journey today!
+            </Text>
+            <BackgroundGradient>
+              <TouchableOpacity
+                className="rounded-full px-8 py-3 shadow-md"
+                onPress={() => router.push("/")}
+              >
+                <Text className="text-white font-bold text-lg">
+                  Book a Trip
+                </Text>
+              </TouchableOpacity>
+            </BackgroundGradient>
             <TouchableOpacity
-              className="mt-4 bg-primary rounded-lg px-6 py-3"
-              onPress={() => router.push("/")}
+              className="flex-row items-center"
+              onPress={() => router.push("/retrieve-booking")}
             >
-              <Text className="text-white font-bold">Book a Trip</Text>
+              <Ionicons name="search-outline" size={20} color="#4b5563" />
+              <Text className="ml-2 text-gray-600 font-semibold">
+                Retrieve a Booking
+              </Text>
             </TouchableOpacity>
           </View>
         }

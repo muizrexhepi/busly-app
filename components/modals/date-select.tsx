@@ -44,7 +44,7 @@ const DateSelect = ({ parseDate }: { parseDate: any }) => {
   return (
     <>
       <Pressable
-        className="flex-1 bg-secondary/10 rounded-lg p-4"
+        className="flex-1 flex-row items-center h-16 bg-gray-100 rounded-xl px-4"
         onPress={handlePresentModalPress}
       >
         <View className="flex-row items-center gap-3">

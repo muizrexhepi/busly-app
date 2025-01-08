@@ -1,5 +1,4 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 export function BackgroundGradient({
@@ -9,26 +8,12 @@ export function BackgroundGradient({
 }) {
   return (
     <LinearGradient
-      colors={["#000", "#feb47b"]}
-      style={styles.gradientContainer}
+      colors={["#ff6700", "#ff007f"]}
+      style={{ borderRadius: 8, height: "auto", marginBottom: 16 }}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
-      <View style={styles.innerContainer}>
-        <Text className="text-black font-medium text-lg">HIS</Text>
-      </View>
+      {children}
     </LinearGradient>
   );
 }
-
-const styles = StyleSheet.create({
-  gradientContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    height: 55,
-  },
-  innerContainer: {
-    backgroundColor: "transparent",
-  },
-});
