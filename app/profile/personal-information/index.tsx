@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,234 +6,281 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  Switch,
   TextInput,
   Modal,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { Edit2, User, Mail, Phone } from "lucide-react-native";
-
-// Mock account API (replace with your actual API)
-const account = {
-  get: async () => ({
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "+1234567890",
-  }),
-  updateName: async (name: string) => {},
-  updateEmail: async (email: string, password: string) => {},
-  updatePhone: async (phone: string, password: string) => {},
-  getPrefs: async () => ({ useAsPassengerInfo: false }),
-  updatePrefs: async (prefs: any) => {},
-};
+import { User, Mail, Phone, Info } from "lucide-react-native";
+import { useAuth } from "@/contexts/auth-provider";
+import { openBrowserAsync } from "expo-web-browser";
+import { SecondaryButton } from "@/components/secondary-button";
+import { environment } from "@/environment";
 
 const PersonalInformation = () => {
-  const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [editingInfo, setEditingInfo] = useState<any>(null);
+  const { user, loading, updateUserInfo } = useAuth();
+  const [editingField, setEditingField] = useState<string | null>(null);
   const [editedValue, setEditedValue] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | undefined>();
-  const [useAsPassengerInfo, setUseAsPassengerInfo] = useState<boolean>(false);
   const [isModalVisible, setModalVisible] = useState<boolean>(false);
 
-  const PERSONAL_INFO = [
-    {
-      label: "Name",
-      value: user?.name || "Not provided",
-      action: user?.name ? "Edit" : "Add",
-      update: async (newValue: string) => {
-        await account.updateName(newValue);
-      },
-      icon: <User size={24} color="#1a237e" strokeWidth={1.5} />,
-    },
-    {
-      label: "Email Address",
-      value: user?.email || "Not provided",
-      action: user?.email ? "Edit" : "Add",
-      update: async (newValue: string, password: string) => {
-        await account.updateEmail(newValue, password);
-      },
-      icon: <Mail size={24} color="#1a237e" strokeWidth={1.5} />,
-    },
-    {
-      label: "Phone Number",
-      value: user?.phone || "Add a number so the operators can get in touch.",
-      action: user?.phone ? "Edit" : "Add",
-      update: async (newValue: string, password: string) => {
-        await account.updatePhone(newValue, password);
-      },
-      icon: <Phone size={24} color="#1a237e" strokeWidth={1.5} />,
-    },
-  ];
-
-  const fetchUser = async () => {
+  const updateName = async (newName: string) => {
     try {
-      const user = await account.get();
-      setUser(user);
-      const prefs = await account.getPrefs();
-      setUseAsPassengerInfo(prefs.useAsPassengerInfo);
-      setIsLoading(false);
-    } catch (error) {
-      setUser(null);
-      setIsLoading(false);
-      console.error("Failed to fetch user:", error);
+      const response = await fetch(
+        `${environment.apiurl}/auth/name/edit/${user!._id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user?.token}`,
+          },
+          body: JSON.stringify({ name: newName }),
+        }
+      );
+      console.log({ response });
+
+      if (!response.ok) {
+        throw new Error("Failed to update name");
+      }
+
+      const data = await response.json();
+      updateUserInfo({ name: newName });
+      return data;
+    } catch (error: any) {
+      console.error("Error updating name:", error);
+      throw new Error(error.message || "Failed to update name");
     }
   };
 
-  useEffect(() => {
-    fetchUser();
-  }, []);
+  const updatePhone = async (newPhone: string) => {
+    try {
+      const response = await fetch(
+        `${environment.apiurl}/auth/phone/edit/${user!._id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user?.token}`,
+          },
+          body: JSON.stringify({ phone: newPhone }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update phone number");
+      }
+
+      const data = await response.json();
+      updateUserInfo({ phone: newPhone });
+      return data;
+    } catch (error: any) {
+      console.error("Error updating phone:", error);
+      throw new Error(error.message || "Failed to update phone number");
+    }
+  };
 
   const handleSaveChanges = async () => {
-    if (editingInfo) {
-      try {
-        await editingInfo.update(editedValue, password);
-        fetchUser();
-        setPassword("");
-        setEditingInfo(null);
-        setModalVisible(false);
-        // You can add a toast message here
-      } catch (error: any) {
-        console.log({ error });
-        setError(error?.message || "An error occurred");
+    try {
+      if (editingField === "Name") {
+        await updateName(editedValue);
+      } else if (editingField === "Phone Number") {
+        await updatePhone(editedValue);
       }
+      setModalVisible(false);
+      setEditingField(null);
+      setError(undefined);
+      Alert.alert("Success", "Your changes have been saved.");
+    } catch (error: any) {
+      setError(
+        error.message || "An error occurred while updating your information."
+      );
     }
   };
 
-  const handleUseAsPassengerInfoChange = async (value: boolean) => {
-    try {
-      const prevPrefs = await account.getPrefs();
-      await account.updatePrefs({ ...prevPrefs, useAsPassengerInfo: value });
-      setUseAsPassengerInfo(value);
-      // You can add a toast message here
-    } catch (error) {
-      console.log({ error });
-      // You can add an error toast message here
-    }
+  const showTooltip = (message: string) => {
+    Alert.alert("", message);
   };
+
+  const renderInfoItem = (
+    label: string,
+    value: string,
+    editable: boolean,
+    icon: React.ReactNode,
+    tooltip?: string
+  ) => (
+    <View className="flex-row justify-between items-center py-3 border-b border-gray-200">
+      <View className="flex-row items-center gap-3 flex-1">
+        {icon}
+        <View>
+          <View className="flex-row items-center">
+            <Text className="text-sm font-medium text-gray-500">{label}</Text>
+            {tooltip && (
+              <TouchableOpacity
+                onPress={() => showTooltip(tooltip)}
+                className="ml-2"
+              >
+                <Info size={16} color="#6b7280" />
+              </TouchableOpacity>
+            )}
+          </View>
+          <Text className="text-base text-gray-900 mt-1">
+            {loading ? (
+              <ActivityIndicator size="small" color="#1a237e" />
+            ) : (
+              value
+            )}
+          </Text>
+        </View>
+      </View>
+      {editable ? (
+        <TouchableOpacity
+          className="px-3 py-1.5 border border-gray-300 rounded"
+          onPress={() => {
+            setEditingField(label);
+            setEditedValue(
+              value === "Not provided" ||
+                value === "Add a number so the operators can get in touch."
+                ? ""
+                : value
+            );
+            setModalVisible(true);
+          }}
+        >
+          <Text className="text-indigo-900 font-medium">Edit</Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          className="px-3 py-1.5 border border-gray-300 rounded opacity-50"
+          disabled={true}
+        >
+          <Text className="text-gray-500 font-medium">Edit</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
+      className="flex-1"
     >
-      <ScrollView
-        style={{ flex: 1, backgroundColor: "#f9fafb" }}
-        contentContainerStyle={{ padding: 16 }}
-      >
-        <View style={{ gap: 16 }}>
-          <Text className="text-gray-600 mb-6">
-            Please provide personal details as they appear on your passport.
-            This ensures accuracy for official bookings.
-          </Text>
-          {PERSONAL_INFO.map((item, index) => (
-            <View
-              key={index}
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                paddingBottom: 16,
-                borderBottomWidth: 1,
-                borderBottomColor: "#e5e7eb",
-              }}
-            >
-              <View
-                style={{ flexDirection: "row", alignItems: "center", gap: 12 }}
-              >
-                {item.icon}
-                <View>
-                  <Text style={{ fontSize: 16 }}>{item.label}</Text>
-                  <Text style={{ color: "#6b7280", fontSize: 14 }}>
-                    {isLoading ? "Loading..." : item.value}
-                  </Text>
-                </View>
-              </View>
-              <TouchableOpacity
-                style={{
-                  paddingHorizontal: 12,
-                  paddingVertical: 6,
-                  borderRadius: 4,
-                  borderWidth: 1,
-                  borderColor: "#d1d5db",
-                }}
-                onPress={() => {
-                  setEditingInfo(item);
-                  setEditedValue(item.value);
-                  setModalVisible(true);
-                }}
-              >
-                <Text style={{ color: "#1a237e" }}>{item.action}</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
+      <ScrollView className="flex-1 bg-gray-50" contentContainerClassName="p-4">
+        <View className="space-y-4 mb-6">
+          <View>
+            <Text className="text-lg font-medium text-gray-900">
+              Main Passenger
+            </Text>
+            <Text className="text-sm text-gray-500 mt-1">
+              Add your details as they appear on your ID.
+            </Text>
+          </View>
+
+          <View className="bg-blue-50 border border-blue-800 rounded-lg p-3 flex-row items-center gap-2 my-3">
+            <Info size={20} color="#1e40af" />
+            <Text className="text-sm font-medium text-blue-800">
+              Please ensure your name matches your ID.
+            </Text>
+          </View>
+
+          <View className="space-y-4">
+            {renderInfoItem(
+              "Name",
+              user?.name || "Not provided",
+              true,
+              <User size={24} color="#1a237e" strokeWidth={1.5} />
+            )}
+            {renderInfoItem(
+              "Email Address",
+              user?.email || "Not provided",
+              false,
+              <Mail size={24} color="#1a237e" strokeWidth={1.5} />,
+              "Email cannot be changed. Please contact support if you need to update your email address."
+            )}
+            {renderInfoItem(
+              "Phone Number",
+              user?.phone || "Add a number so the operators can get in touch.",
+              true,
+              <Phone size={24} color="#1a237e" strokeWidth={1.5} />
+            )}
+          </View>
         </View>
-        <View
-          style={{ flexDirection: "row", alignItems: "center", marginTop: 16 }}
-        >
-          <Switch
-            value={useAsPassengerInfo}
-            onValueChange={handleUseAsPassengerInfoChange}
-            trackColor={{ false: "#767577", true: "#1a237e" }}
-            thumbColor={useAsPassengerInfo ? "#ffffff" : "#f4f3f4"}
-          />
-          <Text style={{ marginLeft: 8 }}>
-            Use these details as primary passenger
+
+        <View className="mt-6 space-y-2">
+          <Text className="text-lg font-medium text-gray-900">
+            Delete Account
+          </Text>
+          <Text className="text-sm text-gray-500">
+            To delete your account, please contact our support team.
+          </Text>
+          <Text className="text-sm text-gray-900">
+            Visit our contact page{" "}
+            <Text
+              className="text-indigo-900 underline"
+              onPress={() => openBrowserAsync("https://gobusly.com/help")}
+            >
+              gobusly.com/help
+            </Text>
           </Text>
         </View>
 
-        {/* <Modal>
-          <View
-            style={{
-              backgroundColor: "white",
-              padding: 22,
-              borderRadius: 4,
-              gap: 16,
-            }}
-          >
-            <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-              Edit {editingInfo?.label}
-            </Text>
-            <TextInput
-              value={editedValue}
-              onChangeText={setEditedValue}
-              style={{
-                borderWidth: 1,
-                borderColor: "#d1d5db",
-                borderRadius: 4,
-                padding: 8,
-              }}
-            />
-            {editingInfo?.label !== "Name" && (
-              <TextInput
-                value={password}
-                onChangeText={setPassword}
-                placeholder="Enter your password"
-                secureTextEntry
-                style={{
-                  borderWidth: 1,
-                  borderColor: "#d1d5db",
-                  borderRadius: 4,
-                  padding: 8,
-                }}
-              />
-            )}
-            {error && <Text style={{ color: "red" }}>{error}</Text>}
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#1a237e",
-                padding: 12,
-                borderRadius: 4,
-                alignItems: "center",
-              }}
-              onPress={handleSaveChanges}
-            >
-              <Text style={{ color: "white" }}>Save changes</Text>
-            </TouchableOpacity>
+        <Modal
+          visible={isModalVisible}
+          transparent={true}
+          onRequestClose={() => {
+            setModalVisible(false);
+            setEditingField(null);
+            setError(undefined);
+          }}
+        >
+          <View className="flex-1 bg-black/50 justify-center items-center p-4">
+            <View className="bg-white rounded-lg p-5 w-full max-w-md">
+              <Text className="text-lg font-semibold text-gray-900">
+                Edit {editingField}
+              </Text>
+              <Text className="text-sm text-gray-500 mt-1">
+                Make changes to your {editingField?.toLowerCase()}.
+              </Text>
+
+              <View className="my-4">
+                <Text className="text-sm font-medium text-gray-700 mb-1.5">
+                  {editingField}
+                </Text>
+                <TextInput
+                  value={editedValue}
+                  onChangeText={setEditedValue}
+                  className="flex-row items-center h-14 bg-gray-100 rounded-xl px-4"
+                  autoCapitalize="none"
+                  autoComplete="off"
+                />
+              </View>
+
+              {error && (
+                <View className="bg-red-100 rounded p-2.5 mb-4">
+                  <Text className="text-red-700 text-sm">{error}</Text>
+                </View>
+              )}
+
+              <View className="flex-row justify-end gap-3">
+                <SecondaryButton
+                  onPress={() => {
+                    setModalVisible(false);
+                    setEditingField(null);
+                    setError(undefined);
+                  }}
+                >
+                  <Text className="text-gray-700 font-medium">Cancel</Text>
+                </SecondaryButton>
+
+                <SecondaryButton
+                  onPress={handleSaveChanges}
+                  className="bg-primary"
+                >
+                  <Text className="text-white font-medium">Save Changes</Text>
+                </SecondaryButton>
+              </View>
+            </View>
           </View>
-        </Modal> */}
+        </Modal>
       </ScrollView>
     </KeyboardAvoidingView>
   );

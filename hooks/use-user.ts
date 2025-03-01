@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 type User = {
-  id: string;
+  _id: string;
   email: string;
   name: string;
-  [key: string]: any; 
+  [key: string]: any;
 };
 
 const useUser = () => {
@@ -19,6 +19,7 @@ const useUser = () => {
       const token = await SecureStore.getItemAsync("authToken");
       if (token) {
         const decodedUser: User = jwtDecode(token);
+        console.log({ user: decodedUser.data });
         setUser(decodedUser.data);
       } else {
         setUser(null);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -11,8 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { PROFILE_LINKS } from "@/constants/data";
 import { logout } from "@/actions/auth";
-import useUser from "@/hooks/use-user";
-import { BackgroundGradient } from "@/components/linear-gradient";
+import { useAuth } from "@/contexts/auth-provider";
 
 const LoggedInUserView = ({ user }: any) => (
   <View className="w-full bg-primary p-4 pt-20">
@@ -56,7 +55,7 @@ const GuestView = () => (
 );
 
 export default function ProfileTab() {
-  const { user, loading, refreshUser } = useUser();
+  const { user, loading, refreshUser } = useAuth();
 
   console.log({ user });
   if (loading) {
@@ -97,14 +96,12 @@ export default function ProfileTab() {
 
         {!user ? (
           <View className="m-4">
-            <BackgroundGradient>
-              <TouchableOpacity
-                className="bg-transparent rounded-lg p-4 items-center"
-                onPress={() => router.push("/(modal)/sign-in")}
-              >
-                <Text className="text-lg font-bold text-white">Sign In</Text>
-              </TouchableOpacity>
-            </BackgroundGradient>
+            <TouchableOpacity
+              className="bg-primary rounded-lg p-4 items-center"
+              onPress={() => router.push("/(modal)/sign-in")}
+            >
+              <Text className="text-lg font-bold text-white">Sign In</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           <TouchableOpacity

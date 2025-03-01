@@ -1,11 +1,14 @@
-import * as SecureStore from 'expo-secure-store';
-import axios from 'axios';
-import { environment } from '@/environment';
+import * as SecureStore from "expo-secure-store";
+import axios from "axios";
+import { environment } from "@/environment";
 
-type AuthProps = {
+type OTPLoginProps = {
   email: string;
-  password: string;
-  fullName?: string;
+  otp: string;
+};
+
+type SendOTPProps = {
+  email: string;
 };
 
 type AuthResponse = {
@@ -14,46 +17,48 @@ type AuthResponse = {
   error?: string;
 };
 
-const login = async ({ email, password }: AuthProps): Promise<AuthResponse> => {
+const sendOTP = async ({ email }: SendOTPProps): Promise<AuthResponse> => {
   try {
-    const response = await axios.post(`${environment.apiurl}/auth/login`, { email, password });
-    const { token } = response.data;
-    await SecureStore.setItemAsync('authToken', token);
-    return { success: true, token };
+    const response = await axios.post(`${environment.apiurl}/auth/otp/send`, {
+      email,
+    });
+    return {
+      success: true,
+    };
   } catch (error: any) {
     return {
       success: false,
-      error: error.response?.data?.message || 'Login failed'
+      error: error.response?.data?.message || "Failed to send OTP",
     };
   }
 };
 
-const register = async ({ fullName, email, password }: AuthProps): Promise<AuthResponse> => {
+const login = async ({ email, otp }: OTPLoginProps): Promise<AuthResponse> => {
   try {
-    const response = await axios.post(`${environment.apiurl}/auth/register`, {
-      name: fullName,
+    const response = await axios.post(`${environment.apiurl}/auth/otp/verify`, {
       email,
-      password
+      otp,
     });
-    console.log({response})
-    const { token } = response.data;
-    await SecureStore.setItemAsync('authToken', token);
-    return { success: true };
+    console.log({ token: response.data.data });
+    const token = response.data.data;
+    console.log({ token });
+    await SecureStore.setItemAsync("authToken", token);
+    return { success: true, token };
   } catch (error: any) {
     return {
       success: false,
-      error: error.response?.data?.message || 'Registration failed'
+      error: error.response?.data?.message || "OTP verification failed",
     };
   }
 };
 
 const isAuthenticated = async () => {
-  const token = await SecureStore.getItemAsync('authToken');
-  return token != null; 
+  const token = await SecureStore.getItemAsync("authToken");
+  return token != null;
 };
 
 const logout = async () => {
-  await SecureStore.deleteItemAsync('authToken'); 
+  await SecureStore.deleteItemAsync("authToken");
 };
 
-export { login, register, isAuthenticated, logout };
+export { login, sendOTP, isAuthenticated, logout };

@@ -6,6 +6,7 @@ import {
   Text,
   TouchableOpacity,
   StatusBar,
+  Image,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { environment } from "@/environment";
@@ -22,6 +23,7 @@ import {
 import TicketDetails from "@/app/search/_components/ticket-details";
 import { PrimaryButton } from "@/components/primary-button";
 import moment from "moment-timezone";
+import { ArrowRight } from "lucide-react-native"; // Make sure to install lucide-react-native
 
 const SearchResults = () => {
   const params = useLocalSearchParams();
@@ -51,9 +53,55 @@ const SearchResults = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMoreData, setHasMoreData] = useState(true);
 
+  const [availableDates, setAvailableDates] = useState<string[]>([]);
+  const [fetchingAvailableDates, setFetchingAvailableDates] = useState(false);
+
   const handlePresentModalPress = () => {
     bottomSheetModalRef.current?.present();
   };
+
+  const fetchNextAvailableDates = useCallback(async () => {
+    try {
+      setFetchingAvailableDates(true);
+
+      const currentDepartureStation = isSelectingReturn
+        ? arrivalStation
+        : departureStation;
+      const currentArrivalStation = isSelectingReturn
+        ? departureStation
+        : arrivalStation;
+      const currentDate = isSelectingReturn ? returnDate : departureDate;
+
+      const response = await fetch(
+        `${environment.apiurl}/ticket/search/find-nearest?` +
+          `departureStation=${currentDepartureStation}&` +
+          `arrivalStation=${currentArrivalStation}&` +
+          `currentDate=${currentDate}&` +
+          `adults=${passengers.adults}&` +
+          `children=${passengers.children}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch available dates");
+      }
+
+      const data = await response.json();
+      console.log({ availableDates: data.data.data });
+      setAvailableDates(data.data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch available dates:", err);
+      setAvailableDates([]);
+    } finally {
+      setFetchingAvailableDates(false);
+    }
+  }, [
+    isSelectingReturn,
+    departureStation,
+    arrivalStation,
+    departureDate,
+    returnDate,
+    passengers,
+  ]);
 
   const fetchTickets = useCallback(
     async (page: number, isLoadingMore = false) => {
@@ -88,6 +136,7 @@ const SearchResults = () => {
         if (newTickets.length === 0) {
           if (page === 1) {
             setNoData(true);
+            fetchNextAvailableDates();
           }
           setHasMoreData(false);
         } else {
@@ -97,10 +146,14 @@ const SearchResults = () => {
           } else {
             setTickets(newTickets);
           }
+          setAvailableDates([]);
         }
       } catch (err) {
         console.error("Error fetching tickets:", err);
-        if (page === 1) setNoData(true);
+        if (page === 1) {
+          setNoData(true);
+          fetchNextAvailableDates();
+        }
       } finally {
         setIsLoading(false);
         setIsLoadingMore(false);
@@ -113,7 +166,27 @@ const SearchResults = () => {
       departureDate,
       returnDate,
       passengers,
+      fetchNextAvailableDates,
     ]
+  );
+
+  const navigateToDate = useCallback(
+    (dateStr: string) => {
+      if (isSelectingReturn) {
+        useSearchStore.setState({ returnDate: dateStr });
+      } else {
+        useSearchStore.setState({ departureDate: dateStr });
+      }
+
+      setTickets([]);
+      setCurrentPage(1);
+      setHasMoreData(true);
+      setNoData(false);
+      setAvailableDates([]);
+
+      fetchTickets(1);
+    },
+    [isSelectingReturn, fetchTickets]
   );
 
   const handleTicketSelection = useCallback(
@@ -150,6 +223,7 @@ const SearchResults = () => {
           setCurrentPage(1);
           setHasMoreData(true);
           setNoData(false);
+          setAvailableDates([]);
 
           await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -174,6 +248,8 @@ const SearchResults = () => {
             if (newTickets.length === 0) {
               setNoData(true);
               setHasMoreData(false);
+              // Fetch next available dates when no return tickets are found
+              fetchNextAvailableDates();
             } else {
               setNoData(false);
               setTickets(newTickets);
@@ -181,6 +257,8 @@ const SearchResults = () => {
           } catch (err) {
             console.error("Error fetching return tickets:", err);
             setNoData(true);
+            // Fetch next available dates on error
+            fetchNextAvailableDates();
           } finally {
             setIsLoading(false);
           }
@@ -198,6 +276,7 @@ const SearchResults = () => {
       departureStation,
       arrivalStation,
       passengers,
+      fetchNextAvailableDates,
     ]
   );
 
@@ -206,6 +285,7 @@ const SearchResults = () => {
     setCurrentPage(1);
     setHasMoreData(true);
     setNoData(false);
+    setAvailableDates([]);
     fetchTickets(1);
   }, [
     isSelectingReturn,
@@ -273,6 +353,58 @@ const SearchResults = () => {
     );
   };
 
+  // Component for next available date - similar to your web implementation
+  const NextAvailableDates = () => {
+    if (fetchingAvailableDates) {
+      return (
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#15203e" />
+        </View>
+      );
+    }
+
+    if (availableDates.length === 0) {
+      return <NoTicketsAvailable />;
+    }
+
+    const nextAvailableDate = availableDates[0];
+    const formattedDate = moment(nextAvailableDate, "DD-MM-YYYY").format(
+      "D MMM"
+    );
+
+    return (
+      <View className="flex-1 items-center justify-center">
+        {/* Illustration */}
+        <View className="relative items-center justify-center mb-8">
+          <Image
+            source={require("@/assets/images/man-illustration.png")}
+            style={{ width: 250, height: 250 }}
+            resizeMode="contain"
+          />
+        </View>
+
+        <View className="items-center mb-8">
+          <Text className="text-2xl font-bold text-center mb-2">
+            No tickets available
+          </Text>
+          <Text className="text-gray-500 text-center">
+            We couldn't find any tickets for this date. Try a different date.
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          onPress={() => navigateToDate(nextAvailableDate)}
+          className="bg-primary px-6 py-3 rounded-xl flex-row items-center"
+        >
+          <Text className="text-white font-medium mr-2">
+            Next Available {formattedDate}
+          </Text>
+          <ArrowRight color="white" size={20} />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   return (
     <View className="flex-1 bg-secondary/10">
       <StatusBar barStyle="light-content" />
@@ -282,7 +414,7 @@ const SearchResults = () => {
           <ActivityIndicator size="large" color="#15203e" />
         </View>
       ) : noData ? (
-        <NoTicketsAvailable />
+        <NextAvailableDates />
       ) : (
         <FlatList
           data={tickets}

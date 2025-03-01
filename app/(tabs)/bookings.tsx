@@ -91,7 +91,6 @@ export default function MyBookingsTab() {
 
   return (
     <View className="flex-1 bg-gray-50">
-      *{" "}
       <View className="w-full bg-primary p-6 pt-20">
         <Text className="text-2xl text-white font-bold mb-2">My Bookings</Text>
         <Text className="text-base text-white/90">
@@ -116,24 +115,11 @@ export default function MyBookingsTab() {
             <Text className="text-base text-gray-600 text-center mb-8">
               Your booked trips will appear here. Start your journey today!
             </Text>
-            <BackgroundGradient>
-              <TouchableOpacity
-                className="rounded-full px-8 py-3 shadow-md"
-                onPress={() => router.push("/")}
-              >
-                <Text className="text-white font-bold text-lg">
-                  Book a Trip
-                </Text>
-              </TouchableOpacity>
-            </BackgroundGradient>
             <TouchableOpacity
-              className="flex-row items-center"
-              onPress={() => router.push("/retrieve-booking")}
+              className="rounded-full px-8 py-3 bg-primary"
+              onPress={() => router.push("/")}
             >
-              <Ionicons name="search-outline" size={20} color="#4b5563" />
-              <Text className="ml-2 text-gray-600 font-semibold">
-                Retrieve a Booking
-              </Text>
+              <Text className="text-white font-bold text-lg">Book a Trip</Text>
             </TouchableOpacity>
           </View>
         }
