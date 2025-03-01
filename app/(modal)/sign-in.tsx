@@ -39,7 +39,6 @@ export default function CredentialsLoginView() {
       setErrors({});
 
       const response = await sendOTP({ email: validatedData.email });
-
       if (response.success) {
         setOtpSent(true);
       } else {
@@ -78,7 +77,6 @@ export default function CredentialsLoginView() {
 
       setErrors({});
 
-      // Use the login function from your auth actions
       const response = await login({ email, otp });
 
       console.log({ response });

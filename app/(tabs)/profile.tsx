@@ -12,6 +12,7 @@ import { router } from "expo-router";
 import { PROFILE_LINKS } from "@/constants/data";
 import { logout } from "@/actions/auth";
 import { useAuth } from "@/contexts/auth-provider";
+import useUser from "@/hooks/use-user";
 
 const LoggedInUserView = ({ user }: any) => (
   <View className="w-full bg-primary p-4 pt-20">
@@ -55,7 +56,7 @@ const GuestView = () => (
 );
 
 export default function ProfileTab() {
-  const { user, loading, refreshUser } = useAuth();
+  const { user, loading, refreshUser } = useUser();
 
   console.log({ user });
   if (loading) {

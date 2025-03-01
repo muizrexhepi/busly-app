@@ -39,7 +39,6 @@ const login = async ({ email, otp }: OTPLoginProps): Promise<AuthResponse> => {
       email,
       otp,
     });
-    console.log({ token: response.data.data });
     const token = response.data.data;
     console.log({ token });
     await SecureStore.setItemAsync("authToken", token);
